@@ -961,4 +961,62 @@ function installVscodeShim() {
 installVscodeShim();
 hostInstance = new ExtensionHost();
 require.cache['__sidex_vscode_shim__'].exports = createVscodeShim();
-module.exports = hostInstance;
+
+// ── IPC mode: when forked by server.cjs, communicate via process messages ──
+
+if (process.env.SIDEX_EXTENSION_HOST === 'true' && process.send) {
+	const host = hostInstance;
+	host.initialize();
+
+	let initData = null;
+	try {
+		if (process.env.SIDEX_INIT_DATA) {
+			initData = JSON.parse(process.env.SIDEX_INIT_DATA);
+		}
+	} catch (e) {
+		log(`failed to parse init data: ${e.message}`);
+	}
+
+	if (initData && initData.extensions) {
+		for (const ext of initData.extensions) {
+			const extPath = ext.extensionLocation?.path || ext.location?.path;
+			if (!extPath) continue;
+			try {
+				const manifest = host._readManifest(extPath);
+				host._extensions.set(manifest.id, {
+					manifest, extensionPath: extPath,
+					module: null, context: null, exports: null, activated: false,
+				});
+				const activationEvents = manifest.activationEvents || [];
+				if (activationEvents.includes('*') || activationEvents.includes('onStartupFinished') || activationEvents.length === 0) {
+					try {
+						host._activateExtension(manifest.id);
+					} catch (e) {
+						log(`auto-activate failed ${manifest.id}: ${e.message}`);
+					}
+				}
+			} catch (e) {
+				log(`load extension failed ${extPath}: ${e.message}`);
+			}
+		}
+	}
+
+	host.on('event', (event) => {
+		if (process.send) {
+			process.send({ type: 'sidex:host-event', event });
+		}
+	});
+
+	process.on('message', (msg) => {
+		if (!msg || typeof msg !== 'object') return;
+		const reply = host.handleMessage(msg);
+		if (reply && process.send) {
+			process.send({ type: 'sidex:host-reply', reply });
+		}
+	});
+
+	process.send({ type: 'VSCODE_EXTHOST_IPC_READY' });
+	log('extension host process running in IPC mode');
+} else {
+	module.exports = hostInstance;
+}

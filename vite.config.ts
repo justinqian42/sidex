@@ -30,6 +30,14 @@ export default defineConfig({
           src: 'node_modules/vscode-oniguruma/release/onig.wasm',
           dest: '.',
         },
+        {
+          src: 'node_modules/vscode-textmate/release/main.js',
+          dest: 'node_modules/vscode-textmate/release',
+        },
+        {
+          src: 'node_modules/vscode-oniguruma/release/main.js',
+          dest: 'node_modules/vscode-oniguruma/release',
+        },
       ],
     }),
   ],
@@ -53,6 +61,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    include: ['vscode-textmate', 'vscode-oniguruma'],
     exclude: ['@tauri-apps/api', '@tauri-apps/plugin-dialog', '@tauri-apps/plugin-fs',
               '@tauri-apps/plugin-clipboard-manager', '@tauri-apps/plugin-shell',
               '@tauri-apps/plugin-notification', '@tauri-apps/plugin-opener'],

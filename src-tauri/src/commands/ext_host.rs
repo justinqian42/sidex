@@ -4,7 +4,6 @@ use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager, State};
 
-/// Holds the running Node.js extension-host process.
 pub struct ExtHostProcess {
     inner: Mutex<Option<ExtHostState>>,
 }
@@ -27,7 +26,6 @@ struct PortMessage {
     port: u16,
 }
 
-/// Locate the `node` binary, preferring the one on PATH.
 fn find_node() -> Result<String, String> {
     let candidates = if cfg!(target_os = "windows") {
         vec!["node.exe", "node"]
@@ -51,7 +49,28 @@ fn find_node() -> Result<String, String> {
         }
     }
 
-    Err("Node.js not found. Install Node.js (>=18) to use Node extensions.".into())
+    Err("Node.js not found. Install Node.js (>=18) to use extensions.".into())
+}
+
+fn resolve_server_script(app: &AppHandle) -> std::path::PathBuf {
+    let resource_path = app
+        .path()
+        .resolve("extension-host/server.cjs", tauri::path::BaseDirectory::Resource)
+        .ok();
+
+    if let Some(ref p) = resource_path {
+        if p.exists() {
+            return p.clone();
+        }
+    }
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("extension-host/server.cjs")
+}
+
+fn ensure_extensions_dir() -> std::path::PathBuf {
+    let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let ext_dir = home.join(".sidex").join("extensions");
+    let _ = std::fs::create_dir_all(&ext_dir);
+    ext_dir
 }
 
 #[tauri::command]
@@ -66,25 +85,7 @@ pub async fn start_extension_host(
     }
 
     let node = find_node()?;
-
-    let server_js = {
-            // Try Tauri resource path first (production)
-        let resource_path = app
-            .path()
-            .resolve("extension-host/server.cjs", tauri::path::BaseDirectory::Resource)
-            .ok();
-        
-        if let Some(ref p) = resource_path {
-            if p.exists() {
-                p.clone()
-            } else {
-                // Dev mode fallback: relative to Cargo manifest dir
-                std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("extension-host/server.cjs")
-            }
-        } else {
-            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("extension-host/server.cjs")
-        }
-    };
+    let server_js = resolve_server_script(&app);
 
     if !server_js.exists() {
         return Err(format!(
@@ -93,15 +94,20 @@ pub async fn start_extension_host(
         ));
     }
 
+    let extensions_dir = ensure_extensions_dir();
+    log::info!("extensions directory: {}", extensions_dir.display());
+
     let mut child = Command::new(&node)
-        .arg(server_js)
-        .stdin(Stdio::piped()) // kept open so child detects parent death
+        .arg("--max-old-space-size=3072")
+        .arg(&server_js)
+        .env("SIDEX_EXTENSIONS_DIR", &extensions_dir)
+        .env("NODE_ENV", "production")
+        .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| format!("failed to spawn extension host: {e}"))?;
 
-    // Read the first line of stdout — it contains `{"port": <n>}`
     let stdout = child
         .stdout
         .take()
@@ -118,7 +124,6 @@ pub async fn start_extension_host(
         msg.port
     };
 
-    // Pipe stderr → log (fire-and-forget thread)
     if let Some(stderr) = child.stderr.take() {
         std::thread::spawn(move || {
             let reader = std::io::BufReader::new(stderr);

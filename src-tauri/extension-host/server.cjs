@@ -352,6 +352,16 @@ class ClientConnection {
 				return;
 			}
 
+			if (msg && msg.type === 'sidex:host-event') {
+				this._sendJson(msg.event);
+				return;
+			}
+
+			if (msg && msg.type === 'sidex:host-reply') {
+				this._sendJson(msg.reply);
+				return;
+			}
+
 			if (msg && typeof msg === 'object') {
 				this._sendJson({
 					type: 'sidex:exthost-message',
