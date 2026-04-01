@@ -190,9 +190,10 @@ export class WorkbenchThemeService extends Disposable implements IWorkbenchTheme
 			codiconStyleSheet.textContent = iconsStyleSheet.getCSS();
 		}
 
+		updateAll();
+
 		const delayer = this._register(new RunOnceScheduler(updateAll, 0));
 		this._register(iconsStyleSheet.onDidChange(() => delayer.schedule()));
-		delayer.schedule();
 	}
 
 	private async initialize(): Promise<[IWorkbenchColorTheme | null, IWorkbenchFileIconTheme | null, IWorkbenchProductIconTheme | null]> {

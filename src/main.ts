@@ -4,11 +4,21 @@
  *--------------------------------------------------------------------------------------------*/
 
 async function boot() {
-	// Import the web workbench barrel — catch errors but continue
-	try {
-		await import('./vs/workbench/workbench.web.main.js');
-	} catch (e) {
-		console.warn('[SideX] Some workbench modules failed to load (non-fatal):', e);
+	// Import the web workbench barrel in stages so partial failures are isolated.
+	// Each stage catches independently — a failure in one won't block the others.
+	const stages = [
+		['common',       () => import('./vs/workbench/workbench.common.main.js')],
+		['web.main',     () => import('./vs/workbench/browser/web.main.js')],
+		['web-dialog',   () => import('./vs/workbench/browser/parts/dialogs/dialog.web.contribution.js')],
+		['web-services', () => import('./vs/workbench/workbench.web.main.js')],
+	] as const;
+
+	for (const [label, loader] of stages) {
+		try {
+			await loader();
+		} catch (e) {
+			console.warn(`[SideX] Barrel stage "${label}" failed (non-fatal):`, e);
+		}
 	}
 
 	const { create } = await import('./vs/workbench/browser/web.factory.js');
@@ -16,9 +26,6 @@ async function boot() {
 	if (document.readyState === 'loading') {
 		await new Promise<void>(r => window.addEventListener('DOMContentLoaded', () => r()));
 	}
-
-	// Register a file system provider for file:// that uses our Tauri backend
-	const { InMemoryFileSystemProvider } = await import('./vs/platform/files/common/inMemoryFilesystemProvider.js');
 
 	create(document.body, {
 		windowIndicator: {

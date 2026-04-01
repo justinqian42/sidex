@@ -15,7 +15,11 @@
 	dataFolderName: '.sidex',
 	urlProtocol: 'sidex',
 	version: '0.1.0',
-	commit: 'development',
+	commit: '',
 	date: new Date().toISOString(),
 	quality: 'stable',
+};
+
+(globalThis as any)._VSCODE_PACKAGE_JSON = {
+	version: '0.1.0',
 };

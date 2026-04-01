@@ -45,6 +45,15 @@ pub fn write_file(path: String, content: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn write_file_bytes(path: String, content: Vec<u8>) -> Result<(), String> {
+    if let Some(parent) = Path::new(&path).parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create parent dirs for '{}': {}", path, e))?;
+    }
+    fs::write(&path, content).map_err(|e| format!("Failed to write file '{}': {}", path, e))
+}
+
+#[tauri::command]
 pub fn read_dir(path: String) -> Result<Vec<DirEntry>, String> {
     let entries = fs::read_dir(&path).map_err(|e| format!("Failed to read dir '{}': {}", path, e))?;
 

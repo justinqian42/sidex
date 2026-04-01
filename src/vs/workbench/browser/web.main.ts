@@ -61,6 +61,7 @@ import { ITimerService } from '../services/timer/browser/timerService.js';
 import { WorkspaceTrustEnablementService, WorkspaceTrustManagementService } from '../services/workspaces/common/workspaceTrust.js';
 import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from '../../platform/workspace/common/workspaceTrust.js';
 import { HTMLFileSystemProvider } from '../../platform/files/browser/htmlFileSystemProvider.js';
+import { TauriFileSystemProvider } from '../../platform/files/browser/tauriFileSystemProvider.js';
 import { IOpenerService } from '../../platform/opener/common/opener.js';
 import { mixin, safeStringify } from '../../base/common/objects.js';
 import { IndexedDB } from '../../base/browser/indexedDB.js';
@@ -506,8 +507,10 @@ export class BrowserMain extends Disposable {
 		}
 		fileService.registerProvider(Schemas.vscodeUserData, userDataProvider);
 
-		// Local file access (if supported by browser)
-		if (WebFileSystemAccess.supported(mainWindow)) {
+		// Local file access via Tauri backend, falling back to browser File System Access API
+		if (typeof (globalThis as any).__TAURI_INTERNALS__ !== 'undefined') {
+			fileService.registerProvider(Schemas.file, new TauriFileSystemProvider());
+		} else if (WebFileSystemAccess.supported(mainWindow)) {
 			fileService.registerProvider(Schemas.file, new HTMLFileSystemProvider(indexedDB, handlesStore, logService));
 		}
 

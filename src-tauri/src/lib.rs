@@ -40,6 +40,7 @@ pub fn run() {
             commands::read_file,
             commands::read_file_bytes,
             commands::write_file,
+            commands::write_file_bytes,
             commands::read_dir,
             commands::stat,
             commands::mkdir,

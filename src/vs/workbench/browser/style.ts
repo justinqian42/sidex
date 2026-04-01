@@ -11,6 +11,24 @@ import { createMetaElement } from '../../base/browser/dom.js';
 import { isSafari, isStandalone } from '../../base/browser/browser.js';
 import { selectionBackground } from '../../platform/theme/common/colorRegistry.js';
 import { mainWindow } from '../../base/browser/window.js';
+import { getIconsStyleSheet } from '../../platform/theme/browser/iconsStyleSheet.js';
+import { createStyleSheet } from '../../base/browser/domStylesheets.js';
+
+// Eagerly inject icon CSS so aliased codicon rules (e.g. .codicon-search-view-icon)
+// are available before the WorkbenchThemeService initialises its own <style> element.
+// The theme service will later take over with a themed version; this unthemed fallback
+// guarantees icons never render as blank while services spin up.
+try {
+	const sheet = createStyleSheet();
+	sheet.id = 'codiconStyles-fallback';
+	const iconsSS = getIconsStyleSheet(undefined);
+	sheet.textContent = iconsSS.getCSS();
+	iconsSS.onDidChange(() => {
+		sheet.textContent = iconsSS.getCSS();
+	});
+} catch (e) {
+	console.warn('[SideX] Icon stylesheet fallback failed (non-fatal):', e);
+}
 
 registerThemingParticipant((theme, collector) => {
 
