@@ -60,7 +60,7 @@ async function boot() {
 			nameLong: 'SideX',
 			applicationName: 'sidex',
 			dataFolderName: '.sidex',
-			version: '1.96.0',
+			version: '1.110.0',
 		},
 		settingsSyncOptions: {
 			enabled: false,
