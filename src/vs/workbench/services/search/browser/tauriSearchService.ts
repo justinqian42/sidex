@@ -166,9 +166,9 @@ export class TauriSearchService extends SearchService {
 	) {
 		super(modelService, editorService, telemetryService, logService, extensionService, fileService, uriIdentityService);
 
-		const provider = new TauriSearchProvider(logService);
-		this.registerSearchResultProvider(Schemas.file, SearchProviderType.file, provider);
-		this.registerSearchResultProvider(Schemas.file, SearchProviderType.text, provider);
+		const provider = this._register(new TauriSearchProvider(logService));
+		this._register(this.registerSearchResultProvider(Schemas.file, SearchProviderType.file, provider));
+		this._register(this.registerSearchResultProvider(Schemas.file, SearchProviderType.text, provider));
 	}
 }
 

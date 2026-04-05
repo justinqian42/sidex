@@ -20,7 +20,7 @@ export default defineConfig({
   },
   build: {
     target: ['es2022', 'chrome100'],
-    minify: false,
+    minify: 'esbuild',
     sourcemap: false,
     chunkSizeWarningLimit: 25000,
     rollupOptions: {
@@ -52,12 +52,6 @@ export default defineConfig({
           return 'assets/[name]-[hash][extname]';
         },
       },
-    },
-    esbuild: {
-      minifyIdentifiers: false,
-      minifySyntax: false,
-      minifyWhitespace: false,
-      keepNames: true,
     },
   },
   optimizeDeps: {

@@ -175,11 +175,7 @@ fn build_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_opener::init())
         .manage(Arc::new(TerminalStore::new()))
         .manage(Arc::new(ProcessStore::new()))
         .manage(Arc::new(DebugAdapterStore::new()))
@@ -208,13 +204,6 @@ pub fn run() {
 
             let menu = build_menu(app.handle())?;
             app.set_menu(menu)?;
-
-            // Enable devtools only in debug builds
-            if cfg!(debug_assertions) {
-                if let Some(window) = app.get_webview_window("main") {
-                    window.open_devtools();
-                }
-            }
 
             if cfg!(debug_assertions) {
                 app.handle().plugin(
