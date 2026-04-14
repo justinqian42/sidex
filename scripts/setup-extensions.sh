@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VSCODE_VERSION="1.110.0"
+VSCODE_VERSION="1.115.0"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXTENSIONS_DIR="$REPO_ROOT/extensions"
 
