@@ -257,7 +257,9 @@ mod tests {
         ));
         let (markup, structured) = convert_hover_contents(contents);
         assert!(matches!(&markup[0], MarkupContent::Markdown(s) if s.contains("rust")));
-        assert!(matches!(&structured[0], HoverContent::Code { language, .. } if language == "rust"));
+        assert!(
+            matches!(&structured[0], HoverContent::Code { language, .. } if language == "rust")
+        );
     }
 
     #[test]
@@ -283,8 +285,10 @@ mod tests {
         let md = "```rust\nfn main() {}\n```";
         let blocks = render_hover_markdown(md);
         assert_eq!(blocks.len(), 1);
-        assert!(matches!(&blocks[0], RenderedHoverBlock::CodeBlock { language, code }
-            if language == "rust" && code.contains("fn main()")));
+        assert!(
+            matches!(&blocks[0], RenderedHoverBlock::CodeBlock { language, code }
+            if language == "rust" && code.contains("fn main()"))
+        );
     }
 
     #[test]

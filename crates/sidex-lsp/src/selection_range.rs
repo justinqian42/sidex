@@ -6,9 +6,7 @@
 use std::str::FromStr;
 
 use anyhow::{Context, Result};
-use lsp_types::{
-    SelectionRangeParams, TextDocumentIdentifier, Uri, WorkDoneProgressParams,
-};
+use lsp_types::{SelectionRangeParams, TextDocumentIdentifier, Uri, WorkDoneProgressParams};
 use serde::{Deserialize, Serialize};
 
 use crate::client::LspClient;
@@ -81,7 +79,10 @@ pub async fn provide_selection_ranges(
     }
     let ranges: Vec<lsp_types::SelectionRange> =
         serde_json::from_value(result).context("failed to parse selection ranges")?;
-    Ok(ranges.into_iter().map(|r| convert_selection_range(&r)).collect())
+    Ok(ranges
+        .into_iter()
+        .map(|r| convert_selection_range(&r))
+        .collect())
 }
 
 fn convert_selection_range(range: &lsp_types::SelectionRange) -> SelectionRange {
@@ -122,10 +123,7 @@ mod tests {
     #[test]
     fn selection_range_depth() {
         let range = SelectionRange {
-            range: sidex_text::Range::new(
-                sidex_text::Position::ZERO,
-                sidex_text::Position::ZERO,
-            ),
+            range: sidex_text::Range::new(sidex_text::Position::ZERO, sidex_text::Position::ZERO),
             parent: Some(Box::new(SelectionRange {
                 range: sidex_text::Range::new(
                     sidex_text::Position::ZERO,

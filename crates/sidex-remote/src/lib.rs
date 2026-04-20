@@ -16,5 +16,5 @@ pub mod tunnel;
 pub mod wsl;
 
 pub use manager::{ConnectionId, ConnectionInfo, ConnectionKind, RemoteManager};
-pub use port_forwarding::{ForwardedPort, PortForwardingService, PortProtocol, PortPrivacy};
+pub use port_forwarding::{ForwardedPort, PortForwardingService, PortPrivacy, PortProtocol};
 pub use transport::{DirEntry, ExecOutput, FileStat, RemotePty, RemoteTransport};

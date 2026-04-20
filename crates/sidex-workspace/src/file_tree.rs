@@ -152,7 +152,10 @@ pub fn compute_nesting(
             for child_suffix in &rule.children {
                 let child_name = format!("{stem}{child_suffix}");
                 if names.contains(&child_name) && !claimed.contains(&child_name) {
-                    nested.entry(name.clone()).or_default().push(child_name.clone());
+                    nested
+                        .entry(name.clone())
+                        .or_default()
+                        .push(child_name.clone());
                     claimed.insert(child_name);
                 }
             }
@@ -589,10 +592,7 @@ impl FileTree {
                         let nested_nodes: Vec<FileNode> = nested
                             .iter()
                             .filter_map(|n| {
-                                children_snapshot
-                                    .iter()
-                                    .find(|c| c.name == *n)
-                                    .cloned()
+                                children_snapshot.iter().find(|c| c.name == *n).cloned()
                             })
                             .collect();
                         child.nested_children = Some(nested_nodes);

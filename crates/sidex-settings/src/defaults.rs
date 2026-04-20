@@ -521,11 +521,7 @@ fn add_extension_defaults(m: &mut Map<String, Value>) {
         "extensions.closeExtensionDetailsOnViewChange",
         json!(false),
     );
-    ins(
-        m,
-        "extensions.confirmedUriHandlerExtensionIds",
-        json!([]),
-    );
+    ins(m, "extensions.confirmedUriHandlerExtensionIds", json!([]));
     ins(m, "extensions.supportUntrustedWorkspaces", json!({}));
 }
 

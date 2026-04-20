@@ -86,18 +86,42 @@ impl TerminalEmulator {
         }
     }
 
-    pub fn grid(&self) -> &TerminalGrid { &self.grid }
-    pub fn grid_mut(&mut self) -> &mut TerminalGrid { &mut self.grid }
-    pub fn title(&self) -> &str { &self.title }
-    pub fn pen(&self) -> &Cell { &self.pen }
-    pub fn cursor_visible(&self) -> bool { self.cursor_visible }
-    pub fn auto_wrap(&self) -> bool { self.auto_wrap }
-    pub fn origin_mode(&self) -> bool { self.origin_mode }
-    pub fn application_cursor_keys(&self) -> bool { self.application_cursor_keys }
-    pub fn bracketed_paste(&self) -> bool { self.bracketed_paste }
-    pub fn mouse_tracking(&self) -> MouseTracking { self.mouse_tracking }
-    pub fn focus_events(&self) -> bool { self.focus_events }
-    pub fn is_alternate_screen(&self) -> bool { self.alternate_grid.is_some() }
+    pub fn grid(&self) -> &TerminalGrid {
+        &self.grid
+    }
+    pub fn grid_mut(&mut self) -> &mut TerminalGrid {
+        &mut self.grid
+    }
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+    pub fn pen(&self) -> &Cell {
+        &self.pen
+    }
+    pub fn cursor_visible(&self) -> bool {
+        self.cursor_visible
+    }
+    pub fn auto_wrap(&self) -> bool {
+        self.auto_wrap
+    }
+    pub fn origin_mode(&self) -> bool {
+        self.origin_mode
+    }
+    pub fn application_cursor_keys(&self) -> bool {
+        self.application_cursor_keys
+    }
+    pub fn bracketed_paste(&self) -> bool {
+        self.bracketed_paste
+    }
+    pub fn mouse_tracking(&self) -> MouseTracking {
+        self.mouse_tracking
+    }
+    pub fn focus_events(&self) -> bool {
+        self.focus_events
+    }
+    pub fn is_alternate_screen(&self) -> bool {
+        self.alternate_grid.is_some()
+    }
 }
 
 struct Performer<'a> {
@@ -194,7 +218,10 @@ impl Performer<'_> {
                     self.pen.attrs.remove(CellAttributes::UNDERLINE);
                     self.pen.attrs |= CellAttributes::DOUBLE_UNDERLINE;
                 }
-                22 => self.pen.attrs.remove(CellAttributes::BOLD | CellAttributes::DIM),
+                22 => self
+                    .pen
+                    .attrs
+                    .remove(CellAttributes::BOLD | CellAttributes::DIM),
                 23 => self.pen.attrs.remove(CellAttributes::ITALIC),
                 24 => self.pen.attrs.remove(
                     CellAttributes::UNDERLINE
@@ -216,7 +243,9 @@ impl Performer<'_> {
                 53 => self.pen.attrs |= CellAttributes::OVERLINE,
                 55 => self.pen.attrs.remove(CellAttributes::OVERLINE),
                 90..=97 => self.pen.fg = Color::Named(named_from_index(u16_to_u8(code - 90 + 8))),
-                100..=107 => self.pen.bg = Color::Named(named_from_index(u16_to_u8(code - 100 + 8))),
+                100..=107 => {
+                    self.pen.bg = Color::Named(named_from_index(u16_to_u8(code - 100 + 8)))
+                }
                 _ => {}
             }
         }
@@ -232,7 +261,11 @@ impl Performer<'_> {
             5 => {
                 if let Some(idx) = iter.next() {
                     let color = Color::Indexed(u16_to_u8(idx[0]));
-                    if foreground { self.pen.fg = color; } else { self.pen.bg = color; }
+                    if foreground {
+                        self.pen.fg = color;
+                    } else {
+                        self.pen.bg = color;
+                    }
                 }
             }
             2 => {
@@ -240,19 +273,26 @@ impl Performer<'_> {
                 let g = iter.next().map_or(0, |p| u16_to_u8(p[0]));
                 let b = iter.next().map_or(0, |p| u16_to_u8(p[0]));
                 let color = Color::Rgb(r, g, b);
-                if foreground { self.pen.fg = color; } else { self.pen.bg = color; }
+                if foreground {
+                    self.pen.fg = color;
+                } else {
+                    self.pen.bg = color;
+                }
             }
             _ => {}
         }
     }
 
     fn enter_alternate_screen(&mut self) {
-        if self.alternate_grid.is_some() { return; }
+        if self.alternate_grid.is_some() {
+            return;
+        }
         let rows = self.grid.rows();
         let cols = self.grid.cols();
         let main = std::mem::replace(self.grid, TerminalGrid::new(rows, cols));
         *self.alternate_grid = Some(main);
-        *self.alternate_saved_cursor = (self.grid.cursor_position().0, self.grid.cursor_position().1);
+        *self.alternate_saved_cursor =
+            (self.grid.cursor_position().0, self.grid.cursor_position().1);
     }
 
     fn exit_alternate_screen(&mut self) {
@@ -337,7 +377,9 @@ impl vte::Perform for Performer<'_> {
                 let next_tab = self.grid.next_tab_stop(col);
                 self.grid.set_cursor(row, next_tab);
             }
-            0x07 => { log::trace!("BEL"); }
+            0x07 => {
+                log::trace!("BEL");
+            }
             _ => {}
         }
     }
@@ -351,9 +393,17 @@ impl vte::Perform for Performer<'_> {
     ) {
         if intermediates == [b'?'] {
             match action {
-                'h' => { self.handle_dec_set(params); return; }
-                'l' => { self.handle_dec_rst(params); return; }
-                _ => { return; }
+                'h' => {
+                    self.handle_dec_set(params);
+                    return;
+                }
+                'l' => {
+                    self.handle_dec_rst(params);
+                    return;
+                }
+                _ => {
+                    return;
+                }
             }
         }
 
@@ -361,25 +411,29 @@ impl vte::Perform for Performer<'_> {
         let (row, col) = self.grid.cursor_position();
 
         match action {
-            'A' => self.grid.set_cursor(row.saturating_sub(first), col),   // CUU
-            'B' => self.grid.set_cursor(row + first, col),                 // CUD
-            'C' => self.grid.set_cursor(row, col + first),                 // CUF
-            'D' => self.grid.set_cursor(row, col.saturating_sub(first)),   // CUB
-            'G' => {                                                        // CHA
+            'A' => self.grid.set_cursor(row.saturating_sub(first), col), // CUU
+            'B' => self.grid.set_cursor(row + first, col),               // CUD
+            'C' => self.grid.set_cursor(row, col + first),               // CUF
+            'D' => self.grid.set_cursor(row, col.saturating_sub(first)), // CUB
+            'G' => {
+                // CHA
                 let c = params.iter().next().map_or(1, |p| p[0].max(1));
                 self.grid.set_cursor(row, c - 1);
             }
-            'd' => {                                                        // VPA
+            'd' => {
+                // VPA
                 let r = params.iter().next().map_or(1, |p| p[0].max(1));
                 self.grid.set_cursor(r - 1, col);
             }
-            'H' | 'f' => {                                                 // CUP / HVP
+            'H' | 'f' => {
+                // CUP / HVP
                 let mut piter = params.iter();
                 let r = piter.next().map_or(1, |p| p[0].max(1));
                 let c = piter.next().map_or(1, |p| p[0].max(1));
                 self.grid.set_cursor(r - 1, c - 1);
             }
-            'J' => {                                                        // ED
+            'J' => {
+                // ED
                 let mode = params.iter().next().map_or(0, |p| p[0]);
                 match mode {
                     0 => self.grid.clear_below(),
@@ -388,7 +442,8 @@ impl vte::Perform for Performer<'_> {
                     _ => {}
                 }
             }
-            'K' => {                                                        // EL
+            'K' => {
+                // EL
                 let mode = params.iter().next().map_or(0, |p| p[0]);
                 match mode {
                     0 => self.grid.clear_line_from_cursor(),
@@ -397,31 +452,42 @@ impl vte::Perform for Performer<'_> {
                     _ => {}
                 }
             }
-            'X' => self.grid.erase_chars(first),                           // ECH
-            '@' => self.grid.insert_chars(first),                           // ICH
-            'P' => self.grid.delete_chars(first),                           // DCH
-            'L' => self.grid.insert_lines(first),                           // IL
-            'M' => self.grid.delete_lines(first),                           // DL
-            'm' => self.handle_sgr(params),                                 // SGR
-            'S' => {                                                        // SU
-                for _ in 0..first { self.grid.scroll_up(); }
+            'X' => self.grid.erase_chars(first),  // ECH
+            '@' => self.grid.insert_chars(first), // ICH
+            'P' => self.grid.delete_chars(first), // DCH
+            'L' => self.grid.insert_lines(first), // IL
+            'M' => self.grid.delete_lines(first), // DL
+            'm' => self.handle_sgr(params),       // SGR
+            'S' => {
+                // SU
+                for _ in 0..first {
+                    self.grid.scroll_up();
+                }
             }
-            'T' => {                                                        // SD
-                for _ in 0..first { self.grid.scroll_down(); }
+            'T' => {
+                // SD
+                for _ in 0..first {
+                    self.grid.scroll_down();
+                }
             }
-            'r' => {                                                        // DECSTBM
+            'r' => {
+                // DECSTBM
                 let mut piter = params.iter();
                 let top = piter.next().map_or(1, |p| p[0].max(1));
                 let bottom = piter.next().map_or(self.grid.rows(), |p| p[0].max(1));
                 self.grid.set_scroll_region(top - 1, bottom - 1);
                 self.grid.set_cursor(0, 0);
             }
-            _ => { log::trace!("unhandled CSI: {action}"); }
+            _ => {
+                log::trace!("unhandled CSI: {action}");
+            }
         }
     }
 
     fn osc_dispatch(&mut self, params: &[&[u8]], _bell_terminated: bool) {
-        if params.is_empty() { return; }
+        if params.is_empty() {
+            return;
+        }
         let code = params[0];
         match code {
             b"0" | b"2" => {
@@ -460,10 +526,13 @@ impl vte::Perform for Performer<'_> {
                 if row_ == top {
                     self.grid.scroll_down();
                 } else {
-                    self.grid.set_cursor(row_.saturating_sub(1), self.grid.cursor_position().1);
+                    self.grid
+                        .set_cursor(row_.saturating_sub(1), self.grid.cursor_position().1);
                 }
             }
-            _ => { log::trace!("unhandled ESC: 0x{byte:02x}"); }
+            _ => {
+                log::trace!("unhandled ESC: 0x{byte:02x}");
+            }
         }
     }
 }
@@ -580,7 +649,10 @@ mod tests {
     fn sgr_bright_colors() {
         let mut emu = make_emulator(24, 80);
         emu.process(b"\x1b[91mX");
-        assert_eq!(emu.grid().cell(0, 0).fg, Color::Named(NamedColor::BrightRed));
+        assert_eq!(
+            emu.grid().cell(0, 0).fg,
+            Color::Named(NamedColor::BrightRed)
+        );
     }
 
     #[test]

@@ -197,34 +197,16 @@ fn build_command(task: &Task) -> (String, Vec<String>) {
             )
         }
         TaskType::Gulp => {
-            let task_name = task
-                .command
-                .strip_prefix("gulp ")
-                .unwrap_or(&task.command);
-            (
-                "gulp".to_string(),
-                vec![task_name.to_string()],
-            )
+            let task_name = task.command.strip_prefix("gulp ").unwrap_or(&task.command);
+            ("gulp".to_string(), vec![task_name.to_string()])
         }
         TaskType::Grunt => {
-            let task_name = task
-                .command
-                .strip_prefix("grunt ")
-                .unwrap_or(&task.command);
-            (
-                "grunt".to_string(),
-                vec![task_name.to_string()],
-            )
+            let task_name = task.command.strip_prefix("grunt ").unwrap_or(&task.command);
+            ("grunt".to_string(), vec![task_name.to_string()])
         }
         TaskType::Jake => {
-            let task_name = task
-                .command
-                .strip_prefix("jake ")
-                .unwrap_or(&task.command);
-            (
-                "jake".to_string(),
-                vec![task_name.to_string()],
-            )
+            let task_name = task.command.strip_prefix("jake ").unwrap_or(&task.command);
+            ("jake".to_string(), vec![task_name.to_string()])
         }
         TaskType::Cargo => {
             let mut args = vec![task.command.clone()];

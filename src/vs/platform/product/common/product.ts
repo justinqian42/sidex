@@ -74,7 +74,7 @@ else {
 			licenseUrl: 'https://github.com/Razshy/sidexvs/blob/main/LICENSE',
 			serverLicenseUrl: 'https://github.com/Razshy/sidexvs/blob/main/LICENSE',
 			extensionsGallery: {
-				serviceUrl: 'https://marketplace.visualstudio.com/_apis/public/gallery',
+				serviceUrl: 'https://marketplace.siden.ai/api/gallery',
 				controlUrl: 'https://az764295.vo.msecnd.net/extensions/marketplace.json',
 				extensionUrlTemplate:
 					'https://marketplace.visualstudio.com/_apis/public/gallery/publishers/{publisher}/vsextensions/{name}/{version}/vspackage',

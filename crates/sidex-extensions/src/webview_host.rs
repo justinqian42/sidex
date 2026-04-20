@@ -305,13 +305,15 @@ impl WebviewHost {
             return Some(panel.html.clone());
         };
 
-        let meta = format!(
-            "<meta http-equiv=\"Content-Security-Policy\" content=\"{csp}\">",
-        );
+        let meta = format!("<meta http-equiv=\"Content-Security-Policy\" content=\"{csp}\">",);
 
         let html = if let Some(pos) = panel.html.find("<head>") {
             let insert_at = pos + "<head>".len();
-            format!("{}{meta}{}", &panel.html[..insert_at], &panel.html[insert_at..])
+            format!(
+                "{}{meta}{}",
+                &panel.html[..insert_at],
+                &panel.html[insert_at..]
+            )
         } else {
             format!("{meta}{}", panel.html)
         };
@@ -337,13 +339,14 @@ impl WebviewHost {
     /// Posts a raw JSON value to a webview panel (convenience wrapper).
     pub fn post_message(&mut self, id: WebviewId, body: Value) -> bool {
         if self.panels.contains_key(&id) {
-            self.pending_messages.entry(id).or_default().push(
-                WebviewMessage {
+            self.pending_messages
+                .entry(id)
+                .or_default()
+                .push(WebviewMessage {
                     webview_id: id,
                     command: String::new(),
                     data: body,
-                },
-            );
+                });
             true
         } else {
             false
@@ -376,11 +379,7 @@ impl WebviewHost {
 
     /// Translates a `vscode-resource:` URI into a real file path, validated
     /// against the panel's `local_resource_roots`.
-    pub fn resolve_resource_uri(
-        &self,
-        id: WebviewId,
-        resource_path: &str,
-    ) -> Option<PathBuf> {
+    pub fn resolve_resource_uri(&self, id: WebviewId, resource_path: &str) -> Option<PathBuf> {
         let panel = self.panels.get(&id)?;
         let path = PathBuf::from(resource_path);
 
@@ -678,7 +677,12 @@ mod tests {
     #[test]
     fn webview_view_creation() {
         let mut host = WebviewHost::new();
-        let id = host.create_webview_view("myExt.sidebar", "My View", WebviewOptions::default(), "ext.my");
+        let id = host.create_webview_view(
+            "myExt.sidebar",
+            "My View",
+            WebviewOptions::default(),
+            "ext.my",
+        );
         let panel = host.get(id).unwrap();
         assert!(panel.is_webview_view);
         assert_eq!(panel.webview_view_id.as_deref(), Some("myExt.sidebar"));
@@ -687,8 +691,14 @@ mod tests {
 
     #[test]
     fn view_column_round_trip() {
-        assert_eq!(ViewColumn::from_i32(ViewColumn::Active.to_i32()), ViewColumn::Active);
-        assert_eq!(ViewColumn::from_i32(ViewColumn::Beside.to_i32()), ViewColumn::Beside);
+        assert_eq!(
+            ViewColumn::from_i32(ViewColumn::Active.to_i32()),
+            ViewColumn::Active
+        );
+        assert_eq!(
+            ViewColumn::from_i32(ViewColumn::Beside.to_i32()),
+            ViewColumn::Beside
+        );
         assert_eq!(ViewColumn::from_i32(1), ViewColumn::One);
         assert_eq!(ViewColumn::from_i32(2), ViewColumn::Two);
         assert_eq!(ViewColumn::from_i32(3), ViewColumn::Three);

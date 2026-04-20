@@ -28,7 +28,10 @@ use crate::transport::{DirEntry, ExecOutput, FileStat, RemotePty, RemoteTranspor
 #[derive(Debug, Clone)]
 pub enum SshAuth {
     Password(String),
-    KeyFile { path: PathBuf, passphrase: Option<String> },
+    KeyFile {
+        path: PathBuf,
+        passphrase: Option<String>,
+    },
     Agent,
     KeyboardInteractive,
 }
@@ -553,7 +556,10 @@ impl SshConnectionPool {
                 .authenticate_password(user, pw)
                 .await
                 .context("SSH password auth")?,
-            SshAuth::KeyFile { ref path, ref passphrase } => {
+            SshAuth::KeyFile {
+                ref path,
+                ref passphrase,
+            } => {
                 let pair = russh_keys::load_secret_key(path, passphrase.as_deref())
                     .with_context(|| format!("loading SSH key {}", path.display()))?;
                 session

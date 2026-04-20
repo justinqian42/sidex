@@ -886,7 +886,10 @@ mod tests {
 
     #[test]
     fn from_label_windows1252() {
-        assert_eq!(encoding_from_label("Windows-1252"), Some(Encoding::Windows1252));
+        assert_eq!(
+            encoding_from_label("Windows-1252"),
+            Some(Encoding::Windows1252)
+        );
         assert_eq!(encoding_from_label("cp1252"), Some(Encoding::Windows1252));
     }
 
@@ -959,6 +962,10 @@ mod tests {
             .iter()
             .map(|(_, l)| *l)
             .collect();
-        assert!(labels.len() >= 19, "need at least 19 encodings, got {}", labels.len());
+        assert!(
+            labels.len() >= 19,
+            "need at least 19 encodings, got {}",
+            labels.len()
+        );
     }
 }

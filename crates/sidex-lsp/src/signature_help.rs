@@ -269,13 +269,19 @@ mod tests {
 
     #[test]
     fn signature_info_active_param() {
-        let sig = make_sig("fn foo(x: i32, y: &str)", vec![("x: i32", None), ("y: &str", None)]);
+        let sig = make_sig(
+            "fn foo(x: i32, y: &str)",
+            vec![("x: i32", None), ("y: &str", None)],
+        );
         assert_eq!(sig.active_param().unwrap().label, "x: i32");
     }
 
     #[test]
     fn signature_info_active_param_offsets() {
-        let sig = make_sig("fn foo(x: i32, y: &str)", vec![("x: i32", None), ("y: &str", None)]);
+        let sig = make_sig(
+            "fn foo(x: i32, y: &str)",
+            vec![("x: i32", None), ("y: &str", None)],
+        );
         let (start, end) = sig.active_param_offsets().unwrap();
         assert!(start < end);
     }

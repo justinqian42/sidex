@@ -140,20 +140,13 @@ impl TreeSitterManager {
     }
 
     /// Full parse of source for the given language.
-    pub fn parse(
-        &mut self,
-        language: &str,
-        source: &str,
-    ) -> Result<&Tree, TreeSitterError> {
+    pub fn parse(&mut self, language: &str, source: &str) -> Result<&Tree, TreeSitterError> {
         let state = self
             .parsers
             .get_mut(language)
             .ok_or_else(|| TreeSitterError::LanguageNotRegistered(language.to_owned()))?;
         state.tree = state.parser.parse(source, None);
-        state
-            .tree
-            .as_ref()
-            .ok_or(TreeSitterError::ParseFailed)
+        state.tree.as_ref().ok_or(TreeSitterError::ParseFailed)
     }
 
     /// Incremental re-parse after edits.
@@ -177,10 +170,7 @@ impl TreeSitterManager {
         } else {
             state.tree = state.parser.parse(source, None);
         }
-        state
-            .tree
-            .as_ref()
-            .ok_or(TreeSitterError::ParseFailed)
+        state.tree.as_ref().ok_or(TreeSitterError::ParseFailed)
     }
 
     /// Returns a reference to the current tree for a language.
@@ -223,11 +213,7 @@ pub fn parse_incremental(
 ///
 /// Each injection range identifies a sub-region of the source that should be
 /// parsed with a different grammar (e.g. JavaScript inside HTML `<script>` tags).
-pub fn get_injections(
-    tree: &Tree,
-    source: &str,
-    injections_query: &Query,
-) -> Vec<InjectionRange> {
+pub fn get_injections(tree: &Tree, source: &str, injections_query: &Query) -> Vec<InjectionRange> {
     let mut cursor = QueryCursor::new();
     let root = tree.root_node();
     let mut results = Vec::new();
@@ -258,7 +244,10 @@ pub fn get_injections(
         }
 
         if let (Some(lang), Some(range)) = (language_name, content_range) {
-            results.push(InjectionRange { language: lang, range });
+            results.push(InjectionRange {
+                language: lang,
+                range,
+            });
         }
     }
     results
@@ -267,11 +256,7 @@ pub fn get_injections(
 /// Extracts foldable regions from a tree using a folds query.
 ///
 /// Returns `(start_line, end_line)` pairs for each foldable region.
-pub fn get_fold_ranges(
-    tree: &Tree,
-    source: &str,
-    folds_query: &Query,
-) -> Vec<(usize, usize)> {
+pub fn get_fold_ranges(tree: &Tree, source: &str, folds_query: &Query) -> Vec<(usize, usize)> {
     let mut cursor = QueryCursor::new();
     let root = tree.root_node();
     let mut ranges = Vec::new();
@@ -294,11 +279,7 @@ pub fn get_fold_ranges(
 /// Extracts indentation hints from a tree using an indents query.
 ///
 /// Returns a map from line number to signed indent delta (+1 for indent, -1 for outdent).
-pub fn get_indent_hints(
-    tree: &Tree,
-    source: &str,
-    indents_query: &Query,
-) -> HashMap<usize, i32> {
+pub fn get_indent_hints(tree: &Tree, source: &str, indents_query: &Query) -> HashMap<usize, i32> {
     let mut cursor = QueryCursor::new();
     let root = tree.root_node();
     let mut hints: HashMap<usize, i32> = HashMap::new();
@@ -327,11 +308,7 @@ pub fn get_indent_hints(
 }
 
 /// Extracts local variable definitions and references using a locals query.
-pub fn get_local_bindings(
-    tree: &Tree,
-    source: &str,
-    locals_query: &Query,
-) -> Vec<LocalBinding> {
+pub fn get_local_bindings(tree: &Tree, source: &str, locals_query: &Query) -> Vec<LocalBinding> {
     let mut cursor = QueryCursor::new();
     let root = tree.root_node();
     let mut bindings = Vec::new();
@@ -349,10 +326,7 @@ pub fn get_local_bindings(
     while let Some(m) = matches.next() {
         for capture in m.captures {
             let node = capture.node;
-            let name = node
-                .utf8_text(source.as_bytes())
-                .unwrap_or("")
-                .to_owned();
+            let name = node.utf8_text(source.as_bytes()).unwrap_or("").to_owned();
             let start_byte = node.start_byte();
             let end_byte = node.end_byte();
 
@@ -462,13 +436,8 @@ mod tests {
             old_end_position: tree_sitter::Point { row: 0, column: 21 },
             new_end_position: tree_sitter::Point { row: 0, column: 22 },
         };
-        let new_tree = parse_incremental(
-            &mut state,
-            &old_tree,
-            "fn main() { let x = 42; }",
-            &[edit],
-        )
-        .unwrap();
+        let new_tree =
+            parse_incremental(&mut state, &old_tree, "fn main() { let x = 42; }", &[edit]).unwrap();
         assert!(!new_tree.root_node().has_error());
     }
 

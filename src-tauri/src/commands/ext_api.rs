@@ -28,9 +28,7 @@ pub fn ext_api_get_namespaces() -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn ext_api_get_commands(
-    registry: State<'_, Arc<CommandRegistry>>,
-) -> Vec<ExtCommandInfo> {
+pub fn ext_api_get_commands(registry: State<'_, Arc<CommandRegistry>>) -> Vec<ExtCommandInfo> {
     registry
         .get_commands()
         .into_iter()

@@ -442,10 +442,7 @@ pub fn filter_and_sort(items: &[CompletionItem], input: &str) -> Vec<(usize, f64
         .iter()
         .enumerate()
         .filter_map(|(idx, item)| {
-            let filter_text = item
-                .filter_text
-                .as_deref()
-                .unwrap_or(&item.label);
+            let filter_text = item.filter_text.as_deref().unwrap_or(&item.label);
             fuzzy_score(input, filter_text).map(|score| {
                 let kind_bonus = kind_sort_priority(item.kind) * 0.01;
                 let preselect_bonus = if item.preselect == Some(true) {

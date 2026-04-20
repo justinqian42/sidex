@@ -225,7 +225,11 @@ export class ExtensionGalleryManifestService extends Disposable implements IExte
 					flags
 				},
 				signing: {
-					allPublicRepositorySigned: true
+					// We serve extensions from both Microsoft Marketplace and
+					// Open VSX. Open VSX extensions are not MS-signed, so we
+					// disable the "all public extensions must be signed" check
+					// to prevent the blocking "not signed" warning.
+					allPublicRepositorySigned: false
 				}
 			}
 		};

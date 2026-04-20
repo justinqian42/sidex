@@ -10,9 +10,7 @@ pub struct SidexDbState {
 
 impl SidexDbState {
     pub fn new(db: Database) -> Self {
-        Self {
-            db: Mutex::new(db),
-        }
+        Self { db: Mutex::new(db) }
     }
 }
 

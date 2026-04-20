@@ -299,8 +299,7 @@ impl FileOperationService {
         let temp_path = dir.join(temp_name);
 
         let mut file = std::fs::File::create(&temp_path).map_err(|e| io_err(&temp_path, e))?;
-        file.write_all(content)
-            .map_err(|e| io_err(&temp_path, e))?;
+        file.write_all(content).map_err(|e| io_err(&temp_path, e))?;
         file.sync_all().map_err(|e| io_err(&temp_path, e))?;
         drop(file);
 

@@ -439,7 +439,10 @@ impl DebugClient {
     /// Gets loaded modules.
     pub async fn modules(&self) -> Result<Vec<Module>> {
         let resp = self
-            .send_request(DapCommand::Modules, json!({"startModule": 0, "moduleCount": 1000}))
+            .send_request(
+                DapCommand::Modules,
+                json!({"startModule": 0, "moduleCount": 1000}),
+            )
             .await?;
         let modules: Vec<Module> = resp
             .body
@@ -498,9 +501,7 @@ impl DebugClient {
         if let Some(fid) = frame_id {
             args["frameId"] = json!(fid);
         }
-        let resp = self
-            .send_request(DapCommand::SetExpression, args)
-            .await?;
+        let resp = self.send_request(DapCommand::SetExpression, args).await?;
         Ok(resp
             .body
             .get("value")
@@ -529,9 +530,7 @@ impl DebugClient {
         if let Some(fid) = frame_id {
             args["frameId"] = json!(fid);
         }
-        let resp = self
-            .send_request(DapCommand::Completions, args)
-            .await?;
+        let resp = self.send_request(DapCommand::Completions, args).await?;
         let items: Vec<CompletionItem> = resp
             .body
             .get("targets")

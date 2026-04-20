@@ -360,11 +360,7 @@ impl TextSearchEngine {
     }
 
     /// Replaces a single match range with `replacement`.
-    pub fn replace(
-        text: &str,
-        match_range: std::ops::Range<usize>,
-        replacement: &str,
-    ) -> String {
+    pub fn replace(text: &str, match_range: std::ops::Range<usize>, replacement: &str) -> String {
         let mut result = String::with_capacity(text.len() + replacement.len());
         result.push_str(&text[..match_range.start]);
         result.push_str(replacement);
@@ -963,8 +959,7 @@ mod tests {
     #[test]
     fn engine_replace_all() {
         let opts = SearchOptions::default();
-        let (result, count) =
-            TextSearchEngine::replace_all("foo bar foo", "foo", "baz", &opts);
+        let (result, count) = TextSearchEngine::replace_all("foo bar foo", "foo", "baz", &opts);
         assert_eq!(result, "baz bar baz");
         assert_eq!(count, 2);
     }
@@ -972,8 +967,7 @@ mod tests {
     #[test]
     fn engine_replace_all_no_match() {
         let opts = SearchOptions::default();
-        let (result, count) =
-            TextSearchEngine::replace_all("hello", "xyz", "abc", &opts);
+        let (result, count) = TextSearchEngine::replace_all("hello", "xyz", "abc", &opts);
         assert_eq!(result, "hello");
         assert_eq!(count, 0);
     }

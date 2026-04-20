@@ -125,9 +125,7 @@ impl RestrictedModeBanner {
         let count = features.len();
         Self {
             workspace_path: workspace_path.to_path_buf(),
-            message: format!(
-                "This workspace is not trusted. {count} feature(s) are restricted."
-            ),
+            message: format!("This workspace is not trusted. {count} feature(s) are restricted."),
             restricted_count: count,
         }
     }
@@ -567,7 +565,11 @@ mod tests {
         let tmp = temp_trust_dir("ext-trust");
         let mut trust = WorkspaceTrust::with_config_dir(&tmp);
 
-        let all = vec!["ext-a".to_string(), "ext-b".to_string(), "ext-c".to_string()];
+        let all = vec![
+            "ext-a".to_string(),
+            "ext-b".to_string(),
+            "ext-c".to_string(),
+        ];
         assert_eq!(trust.untrusted_extensions(&all).len(), 3);
 
         trust.mark_extension_trusted("ext-b");

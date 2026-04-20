@@ -371,7 +371,10 @@ impl SettingsSync {
                 .read_resource(entry.resource)
                 .unwrap_or(Value::Null);
 
-            if local != Value::Null && local != entry.content && has_local_changes(&local, &entry.content) {
+            if local != Value::Null
+                && local != entry.content
+                && has_local_changes(&local, &entry.content)
+            {
                 let conflict = SyncConflict {
                     resource: entry.resource,
                     local_content: local,
@@ -686,9 +689,10 @@ mod tests {
         });
 
         let mut provider = TestProvider::new();
-        provider
-            .data
-            .insert(SyncResource::Settings, json!({"theme": "dark", "fontSize": 14}));
+        provider.data.insert(
+            SyncResource::Settings,
+            json!({"theme": "dark", "fontSize": 14}),
+        );
 
         let remote = SyncData {
             version: 1,
@@ -776,10 +780,7 @@ mod tests {
 
     #[test]
     fn has_local_changes_detection() {
-        assert!(has_local_changes(
-            &json!({"a": 1}),
-            &json!({"a": 2})
-        ));
+        assert!(has_local_changes(&json!({"a": 1}), &json!({"a": 2})));
         assert!(!has_local_changes(
             &json!({"a": 1}),
             &json!({"a": 1, "b": 2})

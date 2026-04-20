@@ -414,36 +414,63 @@ pub async fn dap_send_request(
                 .get("threadId")
                 .and_then(serde_json::Value::as_i64)
                 .ok_or("missing threadId")?;
-            client.continue_execution(thread_id).await.map_err(|e| e.to_string())?;
+            client
+                .continue_execution(thread_id)
+                .await
+                .map_err(|e| e.to_string())?;
             Ok(serde_json::Value::Null)
         }
         "next" => {
-            let thread_id = args.get("threadId").and_then(serde_json::Value::as_i64).ok_or("missing threadId")?;
+            let thread_id = args
+                .get("threadId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing threadId")?;
             client.next(thread_id).await.map_err(|e| e.to_string())?;
             Ok(serde_json::Value::Null)
         }
         "stepIn" => {
-            let thread_id = args.get("threadId").and_then(serde_json::Value::as_i64).ok_or("missing threadId")?;
+            let thread_id = args
+                .get("threadId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing threadId")?;
             client.step_in(thread_id).await.map_err(|e| e.to_string())?;
             Ok(serde_json::Value::Null)
         }
         "stepOut" => {
-            let thread_id = args.get("threadId").and_then(serde_json::Value::as_i64).ok_or("missing threadId")?;
-            client.step_out(thread_id).await.map_err(|e| e.to_string())?;
+            let thread_id = args
+                .get("threadId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing threadId")?;
+            client
+                .step_out(thread_id)
+                .await
+                .map_err(|e| e.to_string())?;
             Ok(serde_json::Value::Null)
         }
         "pause" => {
-            let thread_id = args.get("threadId").and_then(serde_json::Value::as_i64).ok_or("missing threadId")?;
+            let thread_id = args
+                .get("threadId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing threadId")?;
             client.pause(thread_id).await.map_err(|e| e.to_string())?;
             Ok(serde_json::Value::Null)
         }
         "stackTrace" => {
-            let thread_id = args.get("threadId").and_then(serde_json::Value::as_i64).ok_or("missing threadId")?;
-            let frames = client.stack_trace(thread_id).await.map_err(|e| e.to_string())?;
+            let thread_id = args
+                .get("threadId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing threadId")?;
+            let frames = client
+                .stack_trace(thread_id)
+                .await
+                .map_err(|e| e.to_string())?;
             serde_json::to_value(frames).map_err(|e| e.to_string())
         }
         "scopes" => {
-            let frame_id = args.get("frameId").and_then(serde_json::Value::as_i64).ok_or("missing frameId")?;
+            let frame_id = args
+                .get("frameId")
+                .and_then(serde_json::Value::as_i64)
+                .ok_or("missing frameId")?;
             let scopes = client.scopes(frame_id).await.map_err(|e| e.to_string())?;
             serde_json::to_value(scopes).map_err(|e| e.to_string())
         }
@@ -452,7 +479,10 @@ pub async fn dap_send_request(
                 .get("variablesReference")
                 .and_then(serde_json::Value::as_i64)
                 .ok_or("missing variablesReference")?;
-            let vars = client.variables(vars_ref).await.map_err(|e| e.to_string())?;
+            let vars = client
+                .variables(vars_ref)
+                .await
+                .map_err(|e| e.to_string())?;
             serde_json::to_value(vars).map_err(|e| e.to_string())
         }
         "threads" => {
@@ -460,7 +490,10 @@ pub async fn dap_send_request(
             serde_json::to_value(threads).map_err(|e| e.to_string())
         }
         "evaluate" => {
-            let expression = args.get("expression").and_then(serde_json::Value::as_str).ok_or("missing expression")?;
+            let expression = args
+                .get("expression")
+                .and_then(serde_json::Value::as_str)
+                .ok_or("missing expression")?;
             let frame_id = args.get("frameId").and_then(serde_json::Value::as_i64);
             let result = client
                 .evaluate(expression, frame_id)

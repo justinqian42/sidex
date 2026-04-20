@@ -97,8 +97,13 @@ pub struct RemoteExecResult {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum SshAuthPayload {
-    Password { password: String },
-    KeyFile { path: String, passphrase: Option<String> },
+    Password {
+        password: String,
+    },
+    KeyFile {
+        path: String,
+        passphrase: Option<String>,
+    },
     Agent,
 }
 
@@ -146,8 +151,8 @@ pub fn remote_list_ssh_hosts() -> Result<Vec<SshHostInfo>, String> {
         return Ok(Vec::new());
     }
 
-    let hosts = parse_ssh_config(&config_path)
-        .map_err(|e| format!("failed to parse SSH config: {e}"))?;
+    let hosts =
+        parse_ssh_config(&config_path).map_err(|e| format!("failed to parse SSH config: {e}"))?;
 
     Ok(hosts
         .into_iter()
@@ -214,8 +219,8 @@ pub async fn remote_exec_ssh(
 pub fn remote_list_wsl_distros() -> Result<Vec<WslDistroInfo>, String> {
     #[cfg(target_os = "windows")]
     {
-        let distros = sidex_remote::wsl::list_distributions()
-            .map_err(|e| format!("WSL list failed: {e}"))?;
+        let distros =
+            sidex_remote::wsl::list_distributions().map_err(|e| format!("WSL list failed: {e}"))?;
         Ok(distros
             .into_iter()
             .map(|d| WslDistroInfo {

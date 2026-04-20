@@ -24,9 +24,8 @@ pub struct BreakpointPersistence {
 impl BreakpointPersistence {
     /// Saves the persistence data to a JSON file.
     pub fn save(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
-        let json = serde_json::to_string_pretty(self).map_err(|e| {
-            std::io::Error::new(std::io::ErrorKind::Other, e)
-        })?;
+        let json = serde_json::to_string_pretty(self)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
         std::fs::write(path, json)
     }
 
@@ -269,13 +268,16 @@ mod tests {
     #[test]
     fn set_breakpoints_removes_empty() {
         let mut persist = BreakpointPersistence::default();
-        persist.set_breakpoints("a.rs".into(), vec![crate::protocol::SourceBreakpoint {
-            line: 1,
-            column: None,
-            condition: None,
-            hit_condition: None,
-            log_message: None,
-        }]);
+        persist.set_breakpoints(
+            "a.rs".into(),
+            vec![crate::protocol::SourceBreakpoint {
+                line: 1,
+                column: None,
+                condition: None,
+                hit_condition: None,
+                log_message: None,
+            }],
+        );
         assert_eq!(persist.source_breakpoints.len(), 1);
         persist.set_breakpoints("a.rs".into(), Vec::new());
         assert!(persist.source_breakpoints.is_empty());

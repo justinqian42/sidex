@@ -123,8 +123,7 @@ pub fn match_line(line: &str, matcher: &ProblemMatcher) -> Option<Diagnostic> {
         .unwrap_or_default();
 
     let code = if pattern.code_group > 0 {
-        caps.get(pattern.code_group)
-            .map(|m| m.as_str().to_string())
+        caps.get(pattern.code_group).map(|m| m.as_str().to_string())
     } else {
         None
     };
@@ -202,7 +201,11 @@ pub fn builtin_tsc() -> ProblemMatcher {
         "$tsc",
         make_pattern(
             r"^(.+)\((\d+),(\d+)\):\s+(error|warning)\s+TS\d+:\s+(.+)$",
-            1, 2, 3, 4, 5,
+            1,
+            2,
+            3,
+            4,
+            5,
         ),
     )
 }
@@ -216,7 +219,11 @@ pub fn builtin_gcc() -> ProblemMatcher {
         "$gcc",
         make_pattern(
             r"^(.+):(\d+):(\d+):\s+(error|warning|note):\s+(.+)$",
-            1, 2, 3, 4, 5,
+            1,
+            2,
+            3,
+            4,
+            5,
         ),
     )
 }
@@ -230,7 +237,11 @@ pub fn builtin_msvc() -> ProblemMatcher {
         "$msvc",
         make_pattern(
             r"^(.+)\((\d+)\):\s+(error|warning)\s+\w+:\s+(.+)$",
-            1, 2, 0, 3, 4,
+            1,
+            2,
+            0,
+            3,
+            4,
         ),
     )
 }
@@ -255,7 +266,11 @@ pub fn builtin_eslint() -> ProblemMatcher {
         "$eslint",
         make_pattern(
             r"^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s+\S+$",
-            0, 1, 2, 3, 4,
+            0,
+            1,
+            2,
+            3,
+            4,
         ),
     )
 }
@@ -278,10 +293,7 @@ pub fn builtin_go() -> ProblemMatcher {
 pub fn builtin_python() -> ProblemMatcher {
     make_matcher(
         "$python",
-        make_pattern(
-            r#"^\s+File "(.+)", line (\d+)"#,
-            1, 2, 0, 0, 0,
-        ),
+        make_pattern(r#"^\s+File "(.+)", line (\d+)"#, 1, 2, 0, 0, 0),
     )
 }
 
@@ -292,10 +304,7 @@ pub fn builtin_python() -> ProblemMatcher {
 pub fn builtin_javac() -> ProblemMatcher {
     make_matcher(
         "$javac",
-        make_pattern(
-            r"^(.+):(\d+):\s+(error|warning):\s+(.+)$",
-            1, 2, 0, 3, 4,
-        ),
+        make_pattern(r"^(.+):(\d+):\s+(error|warning):\s+(.+)$", 1, 2, 0, 3, 4),
     )
 }
 

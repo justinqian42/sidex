@@ -16,6 +16,10 @@ members = [
     "crates/sidex-remote",
     "crates/sidex-dap",
     "crates/sidex-tasks",
+    "crates/sidex-update",
+    "crates/sidex-profiles",
+    "crates/sidex-auth",
+    "crates/sidex-textmate",
     "src-tauri",
     "sidex-extension-sdk",
 ]
@@ -48,6 +52,10 @@ sidex-remote = { path = "crates/sidex-remote" }
 sidex-extension-sdk = { path = "sidex-extension-sdk" }
 sidex-tasks = { path = "crates/sidex-tasks" }
 sidex-dap = { path = "crates/sidex-dap" }
+sidex-update = { path = "crates/sidex-update" }
+sidex-profiles = { path = "crates/sidex-profiles" }
+sidex-auth = { path = "crates/sidex-auth" }
+sidex-textmate = { path = "crates/sidex-textmate" }
 
 # Core
 tokio = { version = "1", features = ["full"] }

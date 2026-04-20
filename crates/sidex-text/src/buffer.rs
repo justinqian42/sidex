@@ -1053,10 +1053,8 @@ impl Buffer {
     #[must_use]
     pub fn find_bracket_pair(&self, pos: Position) -> Option<(crate::Range, crate::Range)> {
         let (open_pos, close_pos) = self.surrounding_pairs(pos)?;
-        let open_range = crate::Range::new(
-            open_pos,
-            Position::new(open_pos.line, open_pos.column + 1),
-        );
+        let open_range =
+            crate::Range::new(open_pos, Position::new(open_pos.line, open_pos.column + 1));
         let close_range = crate::Range::new(
             close_pos,
             Position::new(close_pos.line, close_pos.column + 1),
@@ -1225,16 +1223,17 @@ impl Buffer {
                 self.offset_to_position(self.len_chars())
             };
 
-            let inverse_edit = EditOperation::replace(
-                crate::Range::new(edit.range.start, new_end_pos),
-                old_text,
-            );
+            let inverse_edit =
+                EditOperation::replace(crate::Range::new(edit.range.start, new_end_pos), old_text);
 
-            results.push((*original_idx, EditResult {
-                range: crate::Range::new(event.range.start, new_end_pos),
-                text: event.text,
-                inverse_edit,
-            }));
+            results.push((
+                *original_idx,
+                EditResult {
+                    range: crate::Range::new(event.range.start, new_end_pos),
+                    text: event.text,
+                    inverse_edit,
+                },
+            ));
         }
 
         results.sort_by_key(|(idx, _)| *idx);
@@ -1263,14 +1262,18 @@ impl Buffer {
             return 0;
         }
         #[allow(clippy::cast_possible_truncation)]
-        { self.line_content_len(idx) as u32 }
+        {
+            self.line_content_len(idx) as u32
+        }
     }
 
     /// Returns the total number of lines as `u32`.
     #[must_use]
     pub fn get_line_count(&self) -> u32 {
         #[allow(clippy::cast_possible_truncation)]
-        { self.len_lines() as u32 }
+        {
+            self.len_lines() as u32
+        }
     }
 
     /// Returns the column of the first non-whitespace character on a line,
@@ -1282,13 +1285,12 @@ impl Buffer {
             return None;
         }
         let content = self.line_content(idx);
-        content
-            .chars()
-            .position(|c| !c.is_whitespace())
-            .map(|p| {
-                #[allow(clippy::cast_possible_truncation)]
-                { p as u32 }
-            })
+        content.chars().position(|c| !c.is_whitespace()).map(|p| {
+            #[allow(clippy::cast_possible_truncation)]
+            {
+                p as u32
+            }
+        })
     }
 
     /// Returns the column *after* the last non-whitespace character on a
@@ -2585,7 +2587,10 @@ mod tests {
     #[test]
     fn matching_bracket_default() {
         let buf = Buffer::from_str("{hello}");
-        assert_eq!(buf.find_matching_bracket_default(pos(0, 0)), Some(pos(0, 6)));
+        assert_eq!(
+            buf.find_matching_bracket_default(pos(0, 0)),
+            Some(pos(0, 6))
+        );
     }
 
     // ── find_enclosing_brackets ────────────────────────────────────
@@ -2593,7 +2598,10 @@ mod tests {
     #[test]
     fn enclosing_brackets_found() {
         let buf = Buffer::from_str("[hello]");
-        assert_eq!(buf.find_enclosing_brackets(pos(0, 3)), Some((pos(0, 0), pos(0, 6))));
+        assert_eq!(
+            buf.find_enclosing_brackets(pos(0, 3)),
+            Some((pos(0, 0), pos(0, 6)))
+        );
     }
 
     // ── get_line_indent / indent_level ─────────────────────────────

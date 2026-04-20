@@ -23,7 +23,7 @@ pub use buffer::{
     Buffer, BufferSnapshot, EditResult, IndentGuide, IndentInfo, WordAtPosition, WordInfo, WordType,
 };
 pub use edit::{ChangeEvent, EditOperation};
-pub use encoding::{EncodingService, encoding_from_label, ALL_ENCODINGS};
+pub use encoding::{encoding_from_label, EncodingService, ALL_ENCODINGS};
 pub use line_ending::{
     count_line_endings, detect_line_ending, line_ending_label, normalize_line_endings, LineEnding,
 };

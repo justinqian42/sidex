@@ -118,12 +118,11 @@ impl PortForwardingService {
     }
 
     /// Manually add a port forward.
-    pub fn forward_port(
-        &mut self,
-        local_port: u16,
-        remote_port: u16,
-    ) -> &ForwardedPort {
-        let idx = self.forwards.iter().position(|f| f.remote_port == remote_port);
+    pub fn forward_port(&mut self, local_port: u16, remote_port: u16) -> &ForwardedPort {
+        let idx = self
+            .forwards
+            .iter()
+            .position(|f| f.remote_port == remote_port);
         if let Some(i) = idx {
             self.forwards[i].local_port = local_port;
             self.forwards[i].is_active = true;
@@ -165,7 +164,11 @@ impl PortForwardingService {
 
     /// Remove / deactivate a specific port forward.
     pub fn remove_forward(&mut self, remote_port: u16) -> bool {
-        if let Some(fwd) = self.forwards.iter_mut().find(|f| f.remote_port == remote_port) {
+        if let Some(fwd) = self
+            .forwards
+            .iter_mut()
+            .find(|f| f.remote_port == remote_port)
+        {
             fwd.is_active = false;
             true
         } else {

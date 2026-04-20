@@ -257,7 +257,11 @@ impl ProfileManager {
 
     /// Remove all temporary profiles (called on application close).
     pub fn cleanup_temporary_profiles(&mut self) {
-        if self.profiles.iter().any(|p| p.id == self.active_id && p.is_temporary) {
+        if self
+            .profiles
+            .iter()
+            .any(|p| p.id == self.active_id && p.is_temporary)
+        {
             self.active_id = ProfileId::DEFAULT;
         }
         self.profiles.retain(|p| !p.is_temporary);
@@ -373,7 +377,11 @@ impl ProfileManager {
         if new_name.is_empty() {
             return Err("profile name cannot be empty".into());
         }
-        if self.profiles.iter().any(|p| p.name == new_name && p.id != id) {
+        if self
+            .profiles
+            .iter()
+            .any(|p| p.name == new_name && p.id != id)
+        {
             return Err(format!("profile '{new_name}' already exists"));
         }
         let profile = self
@@ -443,7 +451,11 @@ impl ProfileManager {
             serde_json::from_str(json).map_err(|e| format!("parse profiles: {e}"))?;
         let mut count = 0;
         for ep in imported {
-            if self.profiles.iter().any(|existing| existing.name == ep.name) {
+            if self
+                .profiles
+                .iter()
+                .any(|existing| existing.name == ep.name)
+            {
                 continue;
             }
 
@@ -483,8 +495,7 @@ impl ProfileManager {
 
     /// Load profiles from a file, keeping the default profile.
     pub fn load_from_file(&mut self, path: &Path) -> Result<(), String> {
-        let content =
-            std::fs::read_to_string(path).map_err(|e| format!("read profiles: {e}"))?;
+        let content = std::fs::read_to_string(path).map_err(|e| format!("read profiles: {e}"))?;
         let loaded: Vec<Profile> =
             serde_json::from_str(&content).map_err(|e| format!("parse profiles: {e}"))?;
 
@@ -566,8 +577,14 @@ mod tests {
         let id = mgr.create_profile("Source").unwrap();
         if let Some(p) = mgr.get_profile_mut(id) {
             p.extensions = vec![
-                ProfileExtension { id: "ext-a".into(), enabled: true },
-                ProfileExtension { id: "ext-b".into(), enabled: true },
+                ProfileExtension {
+                    id: "ext-a".into(),
+                    enabled: true,
+                },
+                ProfileExtension {
+                    id: "ext-b".into(),
+                    enabled: true,
+                },
             ];
         }
 
@@ -618,7 +635,8 @@ mod tests {
     fn import_deduplicates_name() {
         let mut mgr = ProfileManager::new();
         mgr.create_profile("Work").unwrap();
-        let json = r#"{"name":"Work","settings":{},"keybindings":[],"extensions":[],"snippets":{}}"#;
+        let json =
+            r#"{"name":"Work","settings":{},"keybindings":[],"extensions":[],"snippets":{}}"#;
         let id = mgr.import_profile(json).unwrap();
         assert_eq!(mgr.get_profile(id).unwrap().name, "Work (imported)");
     }
@@ -687,9 +705,18 @@ mod tests {
             settings: Value::Null,
             keybindings: Value::Null,
             extensions: vec![
-                ProfileExtension { id: "a".into(), enabled: true },
-                ProfileExtension { id: "b".into(), enabled: false },
-                ProfileExtension { id: "c".into(), enabled: true },
+                ProfileExtension {
+                    id: "a".into(),
+                    enabled: true,
+                },
+                ProfileExtension {
+                    id: "b".into(),
+                    enabled: false,
+                },
+                ProfileExtension {
+                    id: "c".into(),
+                    enabled: true,
+                },
             ],
             snippets: Value::Null,
             tasks: None,

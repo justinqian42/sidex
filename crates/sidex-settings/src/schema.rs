@@ -344,7 +344,11 @@ mod tests {
         let schema = SettingSchema {
             key: "editor.wordWrap".to_owned(),
             setting_type: SettingType::Enum {
-                values: vec!["off".to_owned(), "on".to_owned(), "wordWrapColumn".to_owned()],
+                values: vec![
+                    "off".to_owned(),
+                    "on".to_owned(),
+                    "wordWrapColumn".to_owned(),
+                ],
             },
             default: json!("off"),
             description: "Word wrap".to_owned(),

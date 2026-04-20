@@ -137,11 +137,7 @@ pub async fn list_codespace_info(token: &str) -> Result<Vec<CodespaceInfo>> {
 }
 
 /// Wait for a codespace to reach the Available state, polling periodically.
-pub async fn wait_for_codespace(
-    name: &str,
-    token: &str,
-    timeout: Duration,
-) -> Result<Codespace> {
+pub async fn wait_for_codespace(name: &str, token: &str, timeout: Duration) -> Result<Codespace> {
     let deadline = tokio::time::Instant::now() + timeout;
     loop {
         let codespaces = list_codespaces(token).await?;
@@ -172,15 +168,10 @@ pub async fn rebuild_codespace(name: &str, token: &str) -> Result<()> {
 }
 
 /// Get available machine types for a repository.
-pub async fn list_machine_types(
-    token: &str,
-    repo: &str,
-) -> Result<Vec<String>> {
+pub async fn list_machine_types(token: &str, repo: &str) -> Result<Vec<String>> {
     let client = gh_client(token)?;
     let resp = client
-        .get(format!(
-            "{GITHUB_API}/repos/{repo}/codespaces/machines"
-        ))
+        .get(format!("{GITHUB_API}/repos/{repo}/codespaces/machines"))
         .send()
         .await
         .context("listing machine types")?;
@@ -188,9 +179,13 @@ pub async fn list_machine_types(
         bail!("list machines: {}", resp.text().await?);
     }
     #[derive(Deserialize)]
-    struct Machine { name: String }
+    struct Machine {
+        name: String,
+    }
     #[derive(Deserialize)]
-    struct MachinesResp { machines: Vec<Machine> }
+    struct MachinesResp {
+        machines: Vec<Machine>,
+    }
     let body: MachinesResp = resp.json().await?;
     Ok(body.machines.into_iter().map(|m| m.name).collect())
 }

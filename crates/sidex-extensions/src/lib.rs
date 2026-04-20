@@ -56,8 +56,8 @@ pub use contributions::{
     ContributionHandler, ContributionPoint, DebuggerContribution, GrammarContribution,
     IconThemeContribution, KeybindingContribution, LanguageContribution, MenuContribution,
     ProblemMatcherContribution, SnippetContribution, TaskDefinitionContribution,
-    TerminalContribution, TerminalProfileContribution, ThemeContribution, ViewContainerContribution,
-    ViewContribution,
+    TerminalContribution, TerminalProfileContribution, ThemeContribution,
+    ViewContainerContribution, ViewContribution,
 };
 pub use host::{
     ActivationRequest, CrashHandler, ExtensionHost, ExtensionHostKind, ExtensionHostManager,
@@ -80,7 +80,8 @@ pub use paths::{
 };
 pub use protocol::{
     CodeActionContext, CompletionContext, ConfigurationTarget, DecorationData, DecorationRange,
-    DocumentSelector, DocumentUri, ExtHostToMain, ExtensionDescription as ProtoExtensionDescription,
+    DocumentSelector, DocumentUri, ExtHostToMain,
+    ExtensionDescription as ProtoExtensionDescription,
     ExtensionIdentifier as ProtoExtensionIdentifier, FormattingOptions, Handle, HostEnvironment,
     InputBoxOptions as ProtoInputBoxOptions, MainToExtHost, MessageSeverity,
     OpenDialogOptions as ProtoOpenDialogOptions, Position, ProgressOptions as ProtoProgressOptions,
@@ -92,11 +93,13 @@ pub use protocol::{
 };
 pub use registry::{read_vsix_manifest, ExtensionRegistry, VsixManifest};
 pub use tree_view::{
-    CollapsibleState, ExtensionTreeView, TreeItem, TreeItemCommand, TreeItemIcon,
-    TreeViewEvent, TreeViewRegistry, ViewContainer,
+    CollapsibleState, ExtensionTreeView, TreeItem, TreeItemCommand, TreeItemIcon, TreeViewEvent,
+    TreeViewRegistry, ViewContainer,
 };
-pub use vsix::{install_vsix as vsix_install, unpack_vsix, validate_vsix, InstalledExtension, VsixPackage};
+pub use vsix::{
+    install_vsix as vsix_install, unpack_vsix, validate_vsix, InstalledExtension, VsixPackage,
+};
 pub use webview_host::{
-    PortMapping, ViewColumn, WebviewHost, WebviewId, WebviewMessage, WebviewOptions as WebviewHostOptions, WebviewPanel,
-    WebviewViewDescriptor, WebviewViewLocation,
+    PortMapping, ViewColumn, WebviewHost, WebviewId, WebviewMessage,
+    WebviewOptions as WebviewHostOptions, WebviewPanel, WebviewViewDescriptor, WebviewViewLocation,
 };

@@ -60,12 +60,34 @@ pub fn syntax_get_languages() -> Result<Vec<LanguageInfo>, String> {
 #[allow(clippy::needless_pass_by_value)]
 #[tauri::command]
 pub fn syntax_detect_language(filename: String) -> Result<String, String> {
-    let ext = Path::new(&filename)
+    detect_by_path(&filename).ok_or_else(|| format!("No language detected for '{filename}'"))
+}
+
+#[allow(clippy::needless_pass_by_value)]
+#[tauri::command]
+pub fn syntax_detect_from_content(
+    filename: Option<String>,
+    content: Option<String>,
+    supported: Option<Vec<String>>,
+) -> Result<Option<String>, String> {
+    let candidate = filename
+        .as_deref()
+        .and_then(detect_by_path)
+        .or_else(|| content.as_deref().and_then(detect_by_first_line));
+
+    Ok(candidate.filter(|lang| {
+        supported
+            .as_ref()
+            .is_none_or(|allowed| allowed.iter().any(|l| l == lang))
+    }))
+}
+
+fn detect_by_path(filename: &str) -> Option<String> {
+    let ext = Path::new(filename)
         .extension()
         .and_then(|e| e.to_str())
         .map(|e| format!(".{e}"));
-
-    let fname = Path::new(&filename)
+    let fname = Path::new(filename)
         .file_name()
         .and_then(|f| f.to_str())
         .unwrap_or("");
@@ -73,15 +95,31 @@ pub fn syntax_detect_language(filename: String) -> Result<String, String> {
     for cfg in configs() {
         if let Some(ref ext) = ext {
             if cfg.extensions.iter().any(|e| e == ext) {
-                return Ok(cfg.id.clone());
+                return Some(cfg.id.clone());
             }
         }
         if cfg.filenames.iter().any(|f| f == fname) {
-            return Ok(cfg.id.clone());
+            return Some(cfg.id.clone());
         }
     }
+    None
+}
 
-    Err(format!("No language detected for '{filename}'"))
+fn detect_by_first_line(content: &str) -> Option<String> {
+    let first = content.lines().next()?.trim_end();
+    if first.is_empty() {
+        return None;
+    }
+    for cfg in configs() {
+        if let Some(pattern) = cfg.first_line_pattern.as_deref() {
+            if let Ok(re) = regex::Regex::new(pattern) {
+                if re.is_match(first) {
+                    return Some(cfg.id.clone());
+                }
+            }
+        }
+    }
+    None
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -171,4 +209,49 @@ pub fn syntax_tokenize(language: String, source: String) -> Result<Vec<SyntaxTok
         }
     }
     Ok(tokens)
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TextMateLineTokens {
+    pub line: u32,
+    pub tokens: Vec<TextMateToken>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TextMateToken {
+    pub start: u32,
+    pub end: u32,
+    pub scopes: Vec<String>,
+}
+
+#[allow(clippy::needless_pass_by_value)]
+#[tauri::command]
+pub fn textmate_tokenize_lines(
+    grammar_json: String,
+    source: String,
+) -> Result<Vec<TextMateLineTokens>, String> {
+    let grammar = sidex_syntax::textmate::TextMateGrammar::from_json(&grammar_json)
+        .map_err(|e| format!("parse grammar: {e}"))?;
+    let tokenizer = sidex_syntax::textmate::TextMateTokenizer::new(&grammar);
+    let mut state = sidex_syntax::textmate::TokenizerState::default();
+
+    let mut out = Vec::with_capacity(source.lines().count());
+    for (idx, line) in source.lines().enumerate() {
+        let tokens = tokenizer
+            .tokenize_line(line, &mut state)
+            .into_iter()
+            .map(|t| TextMateToken {
+                start: u32::try_from(t.start).unwrap_or(u32::MAX),
+                end: u32::try_from(t.end).unwrap_or(u32::MAX),
+                scopes: t.scopes,
+            })
+            .collect::<Vec<_>>();
+        out.push(TextMateLineTokens {
+            line: u32::try_from(idx).unwrap_or(u32::MAX),
+            tokens,
+        });
+    }
+    Ok(out)
 }

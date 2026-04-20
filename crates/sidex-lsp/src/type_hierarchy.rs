@@ -37,16 +37,13 @@ impl TypeHierarchyItemInfo {
 }
 
 fn convert_item(item: lsp_types::TypeHierarchyItem) -> TypeHierarchyItemInfo {
-    let tags = item
-        .tags
-        .as_ref()
-        .map_or_else(Vec::new, |tag| {
-            if *tag == lsp_types::SymbolTag::DEPRECATED {
-                vec![SymbolTag::Deprecated]
-            } else {
-                vec![]
-            }
-        });
+    let tags = item.tags.as_ref().map_or_else(Vec::new, |tag| {
+        if *tag == lsp_types::SymbolTag::DEPRECATED {
+            vec![SymbolTag::Deprecated]
+        } else {
+            vec![]
+        }
+    });
 
     TypeHierarchyItemInfo {
         name: item.name.clone(),
@@ -204,10 +201,7 @@ mod tests {
             kind: 11,
             tags: vec![],
             uri: "file:///t.rs".into(),
-            range: sidex_text::Range::new(
-                sidex_text::Position::ZERO,
-                sidex_text::Position::ZERO,
-            ),
+            range: sidex_text::Range::new(sidex_text::Position::ZERO, sidex_text::Position::ZERO),
             selection_range: sidex_text::Range::new(
                 sidex_text::Position::ZERO,
                 sidex_text::Position::ZERO,

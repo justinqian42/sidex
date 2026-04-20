@@ -233,10 +233,7 @@ fn dark_modern_tokens() -> Vec<TokenColorRule> {
             "#DCDCAA",
         ),
         tok_multi(
-            &[
-                "entity.other.attribute-name.pragma",
-                "meta.attribute",
-            ],
+            &["entity.other.attribute-name.pragma", "meta.attribute"],
             "#9CDCFE",
         ),
         // Preprocessor / macros
@@ -245,7 +242,10 @@ fn dark_modern_tokens() -> Vec<TokenColorRule> {
         tok("meta.preprocessor.numeric", "#B5CEA8"),
         tok("entity.name.function.preprocessor", "#569CD6"),
         tok_multi(
-            &["keyword.control.directive", "punctuation.definition.directive"],
+            &[
+                "keyword.control.directive",
+                "punctuation.definition.directive",
+            ],
             "#569CD6",
         ),
         // Operators & punctuation
@@ -275,11 +275,7 @@ fn dark_modern_tokens() -> Vec<TokenColorRule> {
         tok_styled("markup.italic", "#D4D4D4", FontStyle::ITALIC),
         tok_styled("markup.bold", "#D4D4D4", FontStyle::BOLD),
         tok_styled("markup.underline", "#D4D4D4", FontStyle::UNDERLINE),
-        tok_styled(
-            "markup.strikethrough",
-            "#D4D4D4",
-            FontStyle::STRIKETHROUGH,
-        ),
+        tok_styled("markup.strikethrough", "#D4D4D4", FontStyle::STRIKETHROUGH),
         tok("markup.inline.raw", "#CE9178"),
         tok("markup.fenced_code.block", "#CE9178"),
         tok("markup.quote", "#6A9955"),
@@ -441,7 +437,10 @@ fn light_modern_tokens() -> Vec<TokenColorRule> {
         tok("meta.preprocessor.numeric", "#098658"),
         tok("entity.name.function.preprocessor", "#0000FF"),
         tok_multi(
-            &["keyword.control.directive", "punctuation.definition.directive"],
+            &[
+                "keyword.control.directive",
+                "punctuation.definition.directive",
+            ],
             "#0000FF",
         ),
         // Operators & punctuation
@@ -467,11 +466,7 @@ fn light_modern_tokens() -> Vec<TokenColorRule> {
         tok_styled("markup.italic", "#000000", FontStyle::ITALIC),
         tok_styled("markup.bold", "#000000", FontStyle::BOLD),
         tok_styled("markup.underline", "#000000", FontStyle::UNDERLINE),
-        tok_styled(
-            "markup.strikethrough",
-            "#000000",
-            FontStyle::STRIKETHROUGH,
-        ),
+        tok_styled("markup.strikethrough", "#000000", FontStyle::STRIKETHROUGH),
         tok("markup.inline.raw", "#A31515"),
         tok("markup.fenced_code.block", "#A31515"),
         tok("markup.quote", "#008000"),
@@ -713,11 +708,7 @@ fn hc_light_tokens() -> Vec<TokenColorRule> {
         tok_styled("markup.italic", "#800080", FontStyle::ITALIC),
         tok_styled("markup.bold", "#000080", FontStyle::BOLD),
         tok_styled("markup.underline", "#000000", FontStyle::UNDERLINE),
-        tok_styled(
-            "markup.strikethrough",
-            "#000000",
-            FontStyle::STRIKETHROUGH,
-        ),
+        tok_styled("markup.strikethrough", "#000000", FontStyle::STRIKETHROUGH),
         tok("markup.inline.raw", "#0F4A85"),
         tok("markup.quote", "#515151"),
     ]

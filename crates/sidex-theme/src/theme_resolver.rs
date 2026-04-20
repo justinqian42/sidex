@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use crate::color::Color;
-use crate::token_color::{FontStyle, TokenColorRule};
 use crate::theme::{Theme, ThemeKind};
+use crate::token_color::{FontStyle, TokenColorRule};
 use crate::workbench_colors::WorkbenchColors;
 
 /// A theme contributed by an installed extension.
@@ -66,10 +66,7 @@ pub struct ResolvedTheme {
 /// Merge a base [`Theme`] with user color customizations (from
 /// `workbench.colorCustomizations` and `editor.tokenColorCustomizations`)
 /// to produce a final [`ResolvedTheme`].
-pub fn apply_theme(
-    theme: &Theme,
-    customizations: &HashMap<String, String>,
-) -> ResolvedTheme {
+pub fn apply_theme(theme: &Theme, customizations: &HashMap<String, String>) -> ResolvedTheme {
     let mut wb_colors = workbench_to_map(&theme.workbench_colors);
 
     for (key, hex) in customizations {

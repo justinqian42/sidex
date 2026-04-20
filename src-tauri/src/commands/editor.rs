@@ -33,7 +33,11 @@ pub fn editor_detect_colors(_line_text: String) -> Result<Vec<ColorInfo>, String
     Ok(Vec::new())
 }
 
-#[allow(clippy::needless_pass_by_value, clippy::unnecessary_wraps, clippy::cast_possible_truncation)]
+#[allow(
+    clippy::needless_pass_by_value,
+    clippy::unnecessary_wraps,
+    clippy::cast_possible_truncation
+)]
 #[tauri::command]
 pub fn editor_compute_bracket_pairs(content: String) -> Result<Vec<BracketPairInfo>, String> {
     const COLORS: usize = 6;
@@ -58,7 +62,11 @@ pub fn editor_compute_bracket_pairs(content: String) -> Result<Vec<BracketPairIn
     Ok(out)
 }
 
-#[allow(clippy::needless_pass_by_value, clippy::unnecessary_wraps, clippy::cast_possible_truncation)]
+#[allow(
+    clippy::needless_pass_by_value,
+    clippy::unnecessary_wraps,
+    clippy::cast_possible_truncation
+)]
 #[tauri::command]
 pub fn editor_compute_folding_ranges(
     content: String,
@@ -77,8 +85,13 @@ pub fn editor_compute_folding_ranges(
     let mut stack: Vec<(u32, u32)> = Vec::new();
     for (i, line) in lines.iter().enumerate() {
         let idx = i as u32;
-        let Some(indent) = indent_of(line) else { continue };
-        while stack.last().is_some_and(|&(top_indent, _)| indent <= top_indent) {
+        let Some(indent) = indent_of(line) else {
+            continue;
+        };
+        while stack
+            .last()
+            .is_some_and(|&(top_indent, _)| indent <= top_indent)
+        {
             let (_, start) = stack.pop().unwrap();
             if idx > 0 && idx - 1 > start {
                 ranges.push(FoldRange {

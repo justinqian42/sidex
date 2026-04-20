@@ -118,24 +118,16 @@ pub async fn notify_document_changed(
 
 /// Notifies the extension host that a document was saved.
 pub async fn notify_document_saved(host: &ExtensionHost, uri: &str) {
-    notify_extension_host(
-        host,
-        "textDocument/didSave",
-        json!({ "uri": uri }),
-    )
-    .await
-    .ok();
+    notify_extension_host(host, "textDocument/didSave", json!({ "uri": uri }))
+        .await
+        .ok();
 }
 
 /// Notifies the extension host that a document was closed.
 pub async fn notify_document_closed(host: &ExtensionHost, uri: &str) {
-    notify_extension_host(
-        host,
-        "textDocument/didClose",
-        json!({ "uri": uri }),
-    )
-    .await
-    .ok();
+    notify_extension_host(host, "textDocument/didClose", json!({ "uri": uri }))
+        .await
+        .ok();
 }
 
 // ---------------------------------------------------------------------------
@@ -292,28 +284,17 @@ pub async fn notify_active_editor_changed(
 }
 
 /// Notifies the extension host that the set of visible editors changed.
-pub async fn notify_visible_editors_changed(
-    host: &ExtensionHost,
-    editors: &[EditorInfo],
-) {
-    notify_extension_host(
-        host,
-        "$setVisibleEditors",
-        json!({ "editors": editors }),
-    )
-    .await
-    .ok();
+pub async fn notify_visible_editors_changed(host: &ExtensionHost, editors: &[EditorInfo]) {
+    notify_extension_host(host, "$setVisibleEditors", json!({ "editors": editors }))
+        .await
+        .ok();
 }
 
 /// Notifies the extension host that a configuration section changed.
 pub async fn notify_configuration_changed(host: &ExtensionHost, section: &str) {
-    notify_extension_host(
-        host,
-        "$setConfiguration",
-        json!({ "section": section }),
-    )
-    .await
-    .ok();
+    notify_extension_host(host, "$setConfiguration", json!({ "section": section }))
+        .await
+        .ok();
 }
 
 // ---------------------------------------------------------------------------
@@ -338,10 +319,7 @@ pub async fn activate_extension(
 }
 
 /// Sends the full set of extension descriptions to kick off the host.
-pub async fn start_extension_host(
-    host: &ExtensionHost,
-    extensions: &[Value],
-) -> Result<Value> {
+pub async fn start_extension_host(host: &ExtensionHost, extensions: &[Value]) -> Result<Value> {
     request_extension_host(
         host,
         "$startExtensionHost",
@@ -469,8 +447,7 @@ mod tests {
     #[test]
     fn handle_unknown_namespace_fails() {
         let handler = make_handler();
-        let result =
-            handle_ext_host_message(&handler, "foobar/doThing", &Value::Null);
+        let result = handle_ext_host_message(&handler, "foobar/doThing", &Value::Null);
         assert!(result.is_err());
     }
 
@@ -543,12 +520,7 @@ mod tests {
     #[test]
     fn handle_workspace_save_all() {
         let handler = make_handler();
-        let result = handle_ext_host_message(
-            &handler,
-            "workspace/saveAll",
-            &Value::Null,
-        )
-        .unwrap();
+        let result = handle_ext_host_message(&handler, "workspace/saveAll", &Value::Null).unwrap();
         assert_eq!(result, json!(true));
     }
 }

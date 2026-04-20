@@ -110,11 +110,7 @@ impl KeybindingResolver {
 
     /// Process a key press through the chord state machine.
     /// Returns a `KeybindingMatch` indicating whether the key was consumed.
-    pub fn process_key(
-        &mut self,
-        combo: &KeyCombo,
-        context: &ContextKeys,
-    ) -> KeybindingMatch {
+    pub fn process_key(&mut self, combo: &KeyCombo, context: &ContextKeys) -> KeybindingMatch {
         if let Some(first) = self.chord_first.take() {
             if let Some((cmd, args)) = self.resolve_chord_full(&first, combo, context) {
                 return KeybindingMatch::Full {
@@ -151,7 +147,9 @@ impl KeybindingResolver {
 
     /// Create a `ChordState` snapshot if we're in a chord.
     pub fn chord_state(&self) -> Option<ChordState> {
-        self.chord_first.as_ref().map(|c| ChordState::new(c.clone()))
+        self.chord_first
+            .as_ref()
+            .map(|c| ChordState::new(c.clone()))
     }
 
     // ── Resolution with negative binding support ────────────────────────
@@ -186,7 +184,8 @@ impl KeybindingResolver {
 
     /// Resolve a single key combo to a command (simple API, ignores args).
     pub fn resolve<'a>(&'a self, key: &KeyCombo, context: &ContextKeys) -> Option<&'a str> {
-        self.resolve_with_negatives(key, context).map(|(cmd, _)| cmd)
+        self.resolve_with_negatives(key, context)
+            .map(|(cmd, _)| cmd)
     }
 
     /// Resolve a two-combo chord, respecting negative bindings.
@@ -469,8 +468,14 @@ mod tests {
         assert_eq!(resolver.resolve(&combo, &ctx), Some("rust-analyzer.run"));
 
         let resolved = resolver.resolved_bindings();
-        let ext = resolved.iter().find(|r| r.command == "rust-analyzer.run").unwrap();
-        assert_eq!(ext.source, KeybindingSource::Extension("rust-analyzer".into()));
+        let ext = resolved
+            .iter()
+            .find(|r| r.command == "rust-analyzer.run")
+            .unwrap();
+        assert_eq!(
+            ext.source,
+            KeybindingSource::Extension("rust-analyzer".into())
+        );
         assert!(!ext.is_default);
     }
 }

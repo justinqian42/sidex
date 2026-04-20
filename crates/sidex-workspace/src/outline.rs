@@ -151,7 +151,11 @@ pub struct DocumentSymbol {
 impl DocumentSymbol {
     /// Total number of symbols in this subtree (inclusive).
     pub fn count(&self) -> usize {
-        1 + self.children.iter().map(DocumentSymbol::count).sum::<usize>()
+        1 + self
+            .children
+            .iter()
+            .map(DocumentSymbol::count)
+            .sum::<usize>()
     }
 
     /// Flatten the tree into a depth-first list with depth info.
@@ -373,12 +377,24 @@ mod tests {
                 detail: None,
                 kind: SymbolKind::Struct,
                 range: Range {
-                    start: Position { line: 0, character: 0 },
-                    end: Position { line: 20, character: 0 },
+                    start: Position {
+                        line: 0,
+                        character: 0,
+                    },
+                    end: Position {
+                        line: 20,
+                        character: 0,
+                    },
                 },
                 selection_range: Range {
-                    start: Position { line: 0, character: 4 },
-                    end: Position { line: 0, character: 12 },
+                    start: Position {
+                        line: 0,
+                        character: 4,
+                    },
+                    end: Position {
+                        line: 0,
+                        character: 12,
+                    },
                 },
                 children: vec![
                     DocumentSymbol {
@@ -386,12 +402,24 @@ mod tests {
                         detail: Some("fn() -> Self".into()),
                         kind: SymbolKind::Method,
                         range: Range {
-                            start: Position { line: 2, character: 0 },
-                            end: Position { line: 5, character: 0 },
+                            start: Position {
+                                line: 2,
+                                character: 0,
+                            },
+                            end: Position {
+                                line: 5,
+                                character: 0,
+                            },
                         },
                         selection_range: Range {
-                            start: Position { line: 2, character: 7 },
-                            end: Position { line: 2, character: 10 },
+                            start: Position {
+                                line: 2,
+                                character: 7,
+                            },
+                            end: Position {
+                                line: 2,
+                                character: 10,
+                            },
                         },
                         children: vec![],
                     },
@@ -400,12 +428,24 @@ mod tests {
                         detail: Some("fn(&self)".into()),
                         kind: SymbolKind::Method,
                         range: Range {
-                            start: Position { line: 7, character: 0 },
-                            end: Position { line: 15, character: 0 },
+                            start: Position {
+                                line: 7,
+                                character: 0,
+                            },
+                            end: Position {
+                                line: 15,
+                                character: 0,
+                            },
                         },
                         selection_range: Range {
-                            start: Position { line: 7, character: 7 },
-                            end: Position { line: 7, character: 14 },
+                            start: Position {
+                                line: 7,
+                                character: 7,
+                            },
+                            end: Position {
+                                line: 7,
+                                character: 14,
+                            },
                         },
                         children: vec![],
                     },
@@ -416,12 +456,24 @@ mod tests {
                 detail: None,
                 kind: SymbolKind::Function,
                 range: Range {
-                    start: Position { line: 22, character: 0 },
-                    end: Position { line: 30, character: 0 },
+                    start: Position {
+                        line: 22,
+                        character: 0,
+                    },
+                    end: Position {
+                        line: 30,
+                        character: 0,
+                    },
                 },
                 selection_range: Range {
-                    start: Position { line: 22, character: 3 },
-                    end: Position { line: 22, character: 7 },
+                    start: Position {
+                        line: 22,
+                        character: 3,
+                    },
+                    end: Position {
+                        line: 22,
+                        character: 7,
+                    },
                 },
                 children: vec![],
             },
@@ -443,7 +495,10 @@ mod tests {
             symbols: sample_symbols(),
             ..Default::default()
         };
-        let sym = panel.find_symbol_at(Position { line: 3, character: 5 });
+        let sym = panel.find_symbol_at(Position {
+            line: 3,
+            character: 5,
+        });
         assert!(sym.is_some());
         assert_eq!(sym.unwrap().name, "new");
     }
@@ -455,7 +510,10 @@ mod tests {
             follow_cursor: true,
             ..Default::default()
         };
-        panel.update_cursor(Position { line: 10, character: 0 });
+        panel.update_cursor(Position {
+            line: 10,
+            character: 0,
+        });
         assert_eq!(panel.active_symbol.as_deref(), Some("process"));
     }
 
@@ -466,7 +524,10 @@ mod tests {
             follow_cursor: true,
             ..Default::default()
         };
-        panel.update_cursor(Position { line: 3, character: 0 });
+        panel.update_cursor(Position {
+            line: 3,
+            character: 0,
+        });
         let crumbs = panel.breadcrumbs();
         assert_eq!(crumbs, vec!["MyStruct", "new"]);
     }
@@ -507,12 +568,27 @@ mod tests {
     #[test]
     fn range_contains() {
         let range = Range {
-            start: Position { line: 5, character: 0 },
-            end: Position { line: 10, character: 0 },
+            start: Position {
+                line: 5,
+                character: 0,
+            },
+            end: Position {
+                line: 10,
+                character: 0,
+            },
         };
-        assert!(range.contains_position(Position { line: 7, character: 3 }));
-        assert!(!range.contains_position(Position { line: 3, character: 0 }));
-        assert!(!range.contains_position(Position { line: 12, character: 0 }));
+        assert!(range.contains_position(Position {
+            line: 7,
+            character: 3
+        }));
+        assert!(!range.contains_position(Position {
+            line: 3,
+            character: 0
+        }));
+        assert!(!range.contains_position(Position {
+            line: 12,
+            character: 0
+        }));
     }
 
     #[test]

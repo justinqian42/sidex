@@ -214,15 +214,19 @@ pub fn log_graph(repo_root: &Path, max: usize) -> GitResult<Vec<GitGraphEntry>> 
 }
 
 fn split_graph_prefix(line: &str) -> (String, String) {
-    let trimmed = line.trim_start_matches(|c: char| c == '*' || c == '|' || c == '/' || c == '\\' || c == ' ' || c == '_');
+    let trimmed = line.trim_start_matches(|c: char| {
+        c == '*' || c == '|' || c == '/' || c == '\\' || c == ' ' || c == '_'
+    });
     let prefix_len = line.len() - trimmed.len();
     let prefix = line[..prefix_len].to_string();
     (prefix, trimmed.to_string())
 }
 
 fn strip_graph(line: &str) -> String {
-    line.trim_start_matches(|c: char| c == '*' || c == '|' || c == '/' || c == '\\' || c == ' ' || c == '_')
-        .to_string()
+    line.trim_start_matches(|c: char| {
+        c == '*' || c == '|' || c == '/' || c == '\\' || c == ' ' || c == '_'
+    })
+    .to_string()
 }
 
 fn parse_decorations(decorations: &str) -> Vec<GitRef> {

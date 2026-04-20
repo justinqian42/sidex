@@ -9,10 +9,20 @@ use serde_json::Value;
 use std::sync::RwLock;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum UiKind { Desktop = 1, Web = 2 }
+pub enum UiKind {
+    Desktop = 1,
+    Web = 2,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum LogLevel { Off = 0, Trace = 1, Debug = 2, Info = 3, Warning = 4, Error = 5 }
+pub enum LogLevel {
+    Off = 0,
+    Trace = 1,
+    Debug = 2,
+    Info = 3,
+    Warning = 4,
+    Error = 5,
+}
 
 /// Implements the `vscode.env.*` API surface.
 pub struct EnvApi {
@@ -35,7 +45,10 @@ impl EnvApi {
     pub fn new() -> Self {
         Self {
             app_name: "SideX".into(),
-            app_root: std::env::current_dir().unwrap_or_default().to_string_lossy().into(),
+            app_root: std::env::current_dir()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .into(),
             app_host: "desktop".into(),
             language: RwLock::new("en".into()),
             machine_id: uuid::Uuid::new_v4().to_string(),
@@ -60,11 +73,15 @@ impl EnvApi {
             "sessionId" => Ok(Value::String(self.session_id.clone())),
             "uiKind" => Ok(serde_json::to_value(self.ui_kind)?),
             "logLevel" => Ok(serde_json::to_value(*self.log_level.read().expect("lock"))?),
-            "isTelemetryEnabled" => Ok(Value::Bool(*self.is_telemetry_enabled.read().expect("lock"))),
+            "isTelemetryEnabled" => Ok(Value::Bool(
+                *self.is_telemetry_enabled.read().expect("lock"),
+            )),
             "shell" => Ok(Value::String(self.shell.clone())),
             "uriScheme" => Ok(Value::String(self.uri_scheme.clone())),
             "isNewAppInstall" => Ok(Value::Bool(self.is_new_app_install)),
-            "clipboard/readText" => Ok(Value::String(self.clipboard_text.read().expect("lock").clone())),
+            "clipboard/readText" => Ok(Value::String(
+                self.clipboard_text.read().expect("lock").clone(),
+            )),
             "clipboard/writeText" => {
                 let text = params.get("text").and_then(Value::as_str).unwrap_or("");
                 *self.clipboard_text.write().expect("lock") = text.to_owned();
@@ -83,9 +100,19 @@ impl EnvApi {
         }
     }
 
-    pub fn set_language(&self, lang: &str) { *self.language.write().expect("lock") = lang.to_owned(); }
-    pub fn set_log_level(&self, level: LogLevel) { *self.log_level.write().expect("lock") = level; }
-    pub fn set_telemetry_enabled(&self, enabled: bool) { *self.is_telemetry_enabled.write().expect("lock") = enabled; }
+    pub fn set_language(&self, lang: &str) {
+        *self.language.write().expect("lock") = lang.to_owned();
+    }
+    pub fn set_log_level(&self, level: LogLevel) {
+        *self.log_level.write().expect("lock") = level;
+    }
+    pub fn set_telemetry_enabled(&self, enabled: bool) {
+        *self.is_telemetry_enabled.write().expect("lock") = enabled;
+    }
 }
 
-impl Default for EnvApi { fn default() -> Self { Self::new() } }
+impl Default for EnvApi {
+    fn default() -> Self {
+        Self::new()
+    }
+}

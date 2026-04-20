@@ -231,10 +231,7 @@ pub fn save_local_snapshot(
 }
 
 /// Read local history entries for a file.
-pub fn get_local_history(
-    path: &Path,
-    history_dir: &Path,
-) -> WorkspaceResult<Vec<TimelineEntry>> {
+pub fn get_local_history(path: &Path, history_dir: &Path) -> WorkspaceResult<Vec<TimelineEntry>> {
     let dir = history_subdir(path, history_dir);
     if !dir.exists() {
         return Ok(Vec::new());
@@ -420,7 +417,9 @@ mod tests {
 
         let entries = get_local_history(&file_path, history_dir).unwrap();
         assert!(entries.len() >= 1);
-        assert!(entries.iter().all(|e| e.source == TimelineSource::LocalHistory));
+        assert!(entries
+            .iter()
+            .all(|e| e.source == TimelineSource::LocalHistory));
     }
 
     #[test]

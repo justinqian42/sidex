@@ -341,7 +341,12 @@ pub struct Bookmark {
 }
 
 /// Toggle a bookmark: add if absent, remove if present.
-pub fn toggle_bookmark(db: &Database, file_path: &str, line: u32, label: Option<&str>) -> Result<bool> {
+pub fn toggle_bookmark(
+    db: &Database,
+    file_path: &str,
+    line: u32,
+    label: Option<&str>,
+) -> Result<bool> {
     let existing: bool = db
         .conn()
         .query_row(

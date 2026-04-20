@@ -20,8 +20,8 @@ pub use icon_theme::{FileIconTheme, IconInfo};
 pub use product_icons::{ProductIcon, ProductIconTheme};
 pub use theme::{Theme, ThemeKind};
 pub use theme_resolver::{
-    apply_theme, apply_theme_full, default_resolved_dark, default_resolved_light,
-    ExtensionTheme, ResolvedTheme, SemanticTokenColorRule, ThemeRegistry, UiTheme,
+    apply_theme, apply_theme_full, default_resolved_dark, default_resolved_light, ExtensionTheme,
+    ResolvedTheme, SemanticTokenColorRule, ThemeRegistry, UiTheme,
 };
 pub use token_color::{FontStyle, ResolvedStyle, TokenColorMap, TokenColorRule};
 pub use workbench_colors::WorkbenchColors;

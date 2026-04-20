@@ -77,10 +77,30 @@ impl FileDecorationService {
     }
 }
 
-const BLUE: Color = Color { r: 30, g: 136, b: 229, a: 255 };
-const GREEN: Color = Color { r: 76, g: 175, b: 80, a: 255 };
-const RED: Color = Color { r: 244, g: 67, b: 54, a: 255 };
-const YELLOW: Color = Color { r: 255, g: 193, b: 7, a: 255 };
+const BLUE: Color = Color {
+    r: 30,
+    g: 136,
+    b: 229,
+    a: 255,
+};
+const GREEN: Color = Color {
+    r: 76,
+    g: 175,
+    b: 80,
+    a: 255,
+};
+const RED: Color = Color {
+    r: 244,
+    g: 67,
+    b: 54,
+    a: 255,
+};
+const YELLOW: Color = Color {
+    r: 255,
+    g: 193,
+    b: 7,
+    a: 255,
+};
 
 #[derive(Debug, Clone)]
 pub struct GitStatusInput {
@@ -132,12 +152,15 @@ pub fn compute_diagnostic_decorations(
         } else {
             continue;
         };
-        map.insert(path.clone(), FileDecoration {
-            badge: Some(count.to_string()),
-            badge_color: Some(color),
-            tooltip: Some(format!("{count} {label}(s)")),
-            ..Default::default()
-        });
+        map.insert(
+            path.clone(),
+            FileDecoration {
+                badge: Some(count.to_string()),
+                badge_color: Some(color),
+                tooltip: Some(format!("{count} {label}(s)")),
+                ..Default::default()
+            },
+        );
     }
     map
 }
@@ -191,9 +214,9 @@ pub fn propagate_decorations(
 
 fn color_priority(c: &Color) -> u8 {
     match (c.r > 200, c.g < 100, c.g > 150, c.b > 200) {
-        (true, true, _, _) => 3,  // red
-        (true, _, true, _) => 2,  // yellow
-        (_, _, _, true) => 1,     // blue
+        (true, true, _, _) => 3, // red
+        (true, _, true, _) => 2, // yellow
+        (_, _, _, true) => 1,    // blue
         _ => 0,
     }
 }
@@ -203,7 +226,10 @@ fn merge_decoration(existing: &mut FileDecoration, other: &FileDecoration) {
         existing.badge.clone_from(&other.badge);
     }
     if let Some(oc) = other.badge_color {
-        if existing.badge_color.map_or(true, |c| color_priority(&c) < color_priority(&oc)) {
+        if existing
+            .badge_color
+            .map_or(true, |c| color_priority(&c) < color_priority(&oc))
+        {
             existing.badge_color = Some(oc);
         }
     }
@@ -238,7 +264,10 @@ mod tests {
         let mut diags = HashMap::new();
         diags.insert(
             PathBuf::from("/repo/lib.rs"),
-            DiagnosticSummary { errors: 5, warnings: 2 },
+            DiagnosticSummary {
+                errors: 5,
+                warnings: 2,
+            },
         );
         let decs = compute_diagnostic_decorations(&diags);
         let dec = decs.get(Path::new("/repo/lib.rs")).unwrap();

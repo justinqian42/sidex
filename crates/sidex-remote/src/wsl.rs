@@ -5,9 +5,9 @@
 
 use std::path::{Path, PathBuf};
 
-use anyhow::{bail, Result};
 #[cfg(target_os = "windows")]
 use anyhow::Context as _;
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::transport::{DirEntry, ExecOutput, FileStat, RemotePty, RemoteTransport};
@@ -72,7 +72,10 @@ pub fn translate_path_to_wsl(windows_path: &Path) -> String {
 /// `/home/user/file` becomes `\\wsl$\<distro>\home\user\file`
 pub fn translate_path_to_windows(wsl_path: &str, distro: &str) -> PathBuf {
     let cleaned = wsl_path.trim_start_matches('/');
-    PathBuf::from(format!("\\\\wsl$\\{distro}\\{}", cleaned.replace('/', "\\")))
+    PathBuf::from(format!(
+        "\\\\wsl$\\{distro}\\{}",
+        cleaned.replace('/', "\\")
+    ))
 }
 
 /// Execute a single command inside a WSL distro (standalone helper).
@@ -96,7 +99,10 @@ pub fn exec_in_wsl(_distro: &str, _command: &str) -> Result<ExecOutput> {
 
 /// Install the SideX Server binary inside the given WSL distro.
 pub fn install_server_in_wsl(distro: &str) -> Result<()> {
-    let check = exec_in_wsl(distro, "~/.sidex-server/sidex-server --version 2>/dev/null || echo missing")?;
+    let check = exec_in_wsl(
+        distro,
+        "~/.sidex-server/sidex-server --version 2>/dev/null || echo missing",
+    )?;
     let version = env!("CARGO_PKG_VERSION");
     if check.stdout.trim() == version {
         log::info!("SideX Server already up-to-date in WSL distro {distro}");

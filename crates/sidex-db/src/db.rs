@@ -76,8 +76,8 @@ impl Database {
         }
         let mut dst =
             Connection::open(dest).with_context(|| format!("open backup at {}", dest.display()))?;
-        let backup = rusqlite::backup::Backup::new(&self.conn, &mut dst)
-            .context("create backup object")?;
+        let backup =
+            rusqlite::backup::Backup::new(&self.conn, &mut dst).context("create backup object")?;
         backup
             .run_to_completion(100, std::time::Duration::from_millis(10), None)
             .context("run backup")?;

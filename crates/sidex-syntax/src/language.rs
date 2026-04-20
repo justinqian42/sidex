@@ -162,7 +162,11 @@ pub struct AutoClosingPair {
 impl AutoClosingPair {
     #[must_use]
     pub fn new(open: &str, close: &str) -> Self {
-        Self { open: open.into(), close: close.into(), not_in: Vec::new() }
+        Self {
+            open: open.into(),
+            close: close.into(),
+            not_in: Vec::new(),
+        }
     }
     #[must_use]
     pub fn not_in(mut self, contexts: &[&str]) -> Self {
@@ -235,12 +239,17 @@ pub struct LanguageConfiguration {
 impl LanguageConfiguration {
     fn builder(id: &str, name: &str) -> LangConfigBuilder {
         LangConfigBuilder {
-            id: id.into(), name: name.into(),
-            extensions: Vec::new(), filenames: Vec::new(),
+            id: id.into(),
+            name: name.into(),
+            extensions: Vec::new(),
+            filenames: Vec::new(),
             first_line_pattern: None,
-            line_comment: None, block_comment: None,
+            line_comment: None,
+            block_comment: None,
             brackets: vec![
-                ("(".into(), ")".into()), ("[".into(), "]".into()), ("{".into(), "}".into()),
+                ("(".into(), ")".into()),
+                ("[".into(), "]".into()),
+                ("{".into(), "}".into()),
             ],
             auto_closing_pairs: vec![
                 AutoClosingPair::new("(", ")"),
@@ -250,50 +259,70 @@ impl LanguageConfiguration {
                 AutoClosingPair::new("'", "'").not_in(&["string", "comment"]),
             ],
             surrounding_pairs: vec![
-                ("(".into(), ")".into()), ("[".into(), "]".into()), ("{".into(), "}".into()),
-                ("\"".into(), "\"".into()), ("'".into(), "'".into()),
+                ("(".into(), ")".into()),
+                ("[".into(), "]".into()),
+                ("{".into(), "}".into()),
+                ("\"".into(), "\"".into()),
+                ("'".into(), "'".into()),
             ],
-            folding_markers: None, off_side: false,
-            word_pattern: None, indent_rules: None,
+            folding_markers: None,
+            off_side: false,
+            word_pattern: None,
+            indent_rules: None,
             on_enter_rules: Vec::new(),
         }
     }
 }
 
 struct LangConfigBuilder {
-    id: String, name: String,
-    extensions: Vec<String>, filenames: Vec<String>,
+    id: String,
+    name: String,
+    extensions: Vec<String>,
+    filenames: Vec<String>,
     first_line_pattern: Option<String>,
-    line_comment: Option<String>, block_comment: Option<(String, String)>,
+    line_comment: Option<String>,
+    block_comment: Option<(String, String)>,
     brackets: Vec<(String, String)>,
     auto_closing_pairs: Vec<AutoClosingPair>,
     surrounding_pairs: Vec<(String, String)>,
-    folding_markers: Option<FoldingMarkers>, off_side: bool,
-    word_pattern: Option<String>, indent_rules: Option<IndentRules>,
+    folding_markers: Option<FoldingMarkers>,
+    off_side: bool,
+    word_pattern: Option<String>,
+    indent_rules: Option<IndentRules>,
     on_enter_rules: Vec<OnEnterRuleConfig>,
 }
 
 impl LangConfigBuilder {
     fn exts(mut self, e: &[&str]) -> Self {
-        self.extensions = e.iter().map(|s| (*s).into()).collect(); self
+        self.extensions = e.iter().map(|s| (*s).into()).collect();
+        self
     }
     fn filenames(mut self, f: &[&str]) -> Self {
-        self.filenames = f.iter().map(|s| (*s).into()).collect(); self
+        self.filenames = f.iter().map(|s| (*s).into()).collect();
+        self
     }
     fn first_line(mut self, p: &str) -> Self {
-        self.first_line_pattern = Some(p.into()); self
+        self.first_line_pattern = Some(p.into());
+        self
     }
     fn line_cmt(mut self, s: &str) -> Self {
-        self.line_comment = Some(s.into()); self
+        self.line_comment = Some(s.into());
+        self
     }
     fn block_cmt(mut self, o: &str, c: &str) -> Self {
-        self.block_comment = Some((o.into(), c.into())); self
+        self.block_comment = Some((o.into(), c.into()));
+        self
     }
     fn off_side(mut self) -> Self {
-        self.off_side = true; self
+        self.off_side = true;
+        self
     }
     fn fold_markers(mut self, s: &str, e: &str) -> Self {
-        self.folding_markers = Some(FoldingMarkers { start: s.into(), end: e.into() }); self
+        self.folding_markers = Some(FoldingMarkers {
+            start: s.into(),
+            end: e.into(),
+        });
+        self
     }
     fn indent(mut self, inc: &str, dec: &str) -> Self {
         self.indent_rules = Some(IndentRules {
@@ -301,22 +330,32 @@ impl LangConfigBuilder {
             decrease_indent_pattern: dec.into(),
             indent_next_line_pattern: None,
             unindented_line_pattern: None,
-        }); self
+        });
+        self
     }
     #[allow(dead_code)]
     fn word_pat(mut self, p: &str) -> Self {
-        self.word_pattern = Some(p.into()); self
+        self.word_pattern = Some(p.into());
+        self
     }
     fn build(self) -> LanguageConfiguration {
         LanguageConfiguration {
-            id: self.id, name: self.name,
-            extensions: self.extensions, filenames: self.filenames,
+            id: self.id,
+            name: self.name,
+            extensions: self.extensions,
+            filenames: self.filenames,
             first_line_pattern: self.first_line_pattern,
-            comments: CommentConfig { line_comment: self.line_comment, block_comment: self.block_comment },
+            comments: CommentConfig {
+                line_comment: self.line_comment,
+                block_comment: self.block_comment,
+            },
             brackets: self.brackets,
             auto_closing_pairs: self.auto_closing_pairs,
             surrounding_pairs: self.surrounding_pairs,
-            folding: FoldingConfig { markers: self.folding_markers, off_side: self.off_side },
+            folding: FoldingConfig {
+                markers: self.folding_markers,
+                off_side: self.off_side,
+            },
             word_pattern: self.word_pattern,
             indent_rules: self.indent_rules,
             on_enter_rules: self.on_enter_rules,
@@ -992,7 +1031,8 @@ mod tests {
             assert!(!cfg.id.is_empty());
             assert!(
                 !cfg.extensions.is_empty() || !cfg.filenames.is_empty(),
-                "{} has no extensions or filenames", cfg.id,
+                "{} has no extensions or filenames",
+                cfg.id,
             );
         }
     }

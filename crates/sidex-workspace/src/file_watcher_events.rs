@@ -19,11 +19,18 @@ use crate::watcher::{FileEvent, FileEventKind};
 /// An action the editor should take in response to a file-system event.
 #[derive(Debug, Clone, Serialize)]
 pub enum FileWatcherReaction {
-    ReloadFile { path: PathBuf },
-    ShowConflictDialog { path: PathBuf, disk_mtime: SystemTime },
+    ReloadFile {
+        path: PathBuf,
+    },
+    ShowConflictDialog {
+        path: PathBuf,
+        disk_mtime: SystemTime,
+    },
     RefreshFileTree,
     RefreshGitStatus,
-    RerunSearch { query: String },
+    RerunSearch {
+        query: String,
+    },
     ReloadSettings,
     ReloadExtensions,
 }
@@ -78,9 +85,7 @@ impl FileConflictResolver {
         if let Some(pos) = self.pending_conflicts.iter().position(|c| c.path == path) {
             let conflict = self.pending_conflicts.remove(pos);
             match resolution {
-                ConflictResolution::KeepEditor | ConflictResolution::Compare => {
-                    Some(conflict)
-                }
+                ConflictResolution::KeepEditor | ConflictResolution::Compare => Some(conflict),
                 ConflictResolution::ReloadFromDisk => Some(conflict),
             }
         } else {
@@ -89,7 +94,11 @@ impl FileConflictResolver {
     }
 
     pub fn resolve_all(&mut self, resolution: ConflictResolution) -> Vec<FileConflict> {
-        let all: Vec<PathBuf> = self.pending_conflicts.iter().map(|c| c.path.clone()).collect();
+        let all: Vec<PathBuf> = self
+            .pending_conflicts
+            .iter()
+            .map(|c| c.path.clone())
+            .collect();
         let mut resolved = Vec::new();
         for path in all {
             if let Some(c) = self.resolve(&path, resolution) {
@@ -252,10 +261,7 @@ impl Default for EventThrottler {
 }
 
 fn is_settings_file(path: &Path) -> bool {
-    let name = path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("");
+    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
     matches!(name, "settings.json" | "keybindings.json" | ".editorconfig")
 }
 
@@ -320,10 +326,7 @@ mod tests {
         }];
         throttler.ingest(events);
         let reactions = throttler.flush(&HashSet::new(), true, None);
-        assert!(
-            reactions.is_empty(),
-            "own writes should be filtered out"
-        );
+        assert!(reactions.is_empty(), "own writes should be filtered out");
     }
 
     #[test]
@@ -331,8 +334,14 @@ mod tests {
         let mut throttler = EventThrottler::new();
         let path = PathBuf::from("/file.rs");
         let events = vec![
-            FileEvent { path: path.clone(), kind: FileEventKind::Modified },
-            FileEvent { path: path.clone(), kind: FileEventKind::Modified },
+            FileEvent {
+                path: path.clone(),
+                kind: FileEventKind::Modified,
+            },
+            FileEvent {
+                path: path.clone(),
+                kind: FileEventKind::Modified,
+            },
         ];
         throttler.ingest(events);
         let reactions = throttler.flush(&HashSet::new(), true, None);
@@ -363,7 +372,9 @@ mod tests {
 
     #[test]
     fn settings_file_detected() {
-        assert!(is_settings_file(Path::new("/workspace/.vscode/settings.json")));
+        assert!(is_settings_file(Path::new(
+            "/workspace/.vscode/settings.json"
+        )));
         assert!(!is_settings_file(Path::new("/workspace/src/main.rs")));
     }
 

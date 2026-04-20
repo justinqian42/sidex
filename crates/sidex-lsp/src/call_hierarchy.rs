@@ -127,20 +127,17 @@ pub struct OutgoingCall {
 }
 
 fn convert_item(item: CallHierarchyItem) -> CallHierarchyItemInfo {
-    let tags = item
-        .tags
-        .as_ref()
-        .map_or_else(Vec::new, |t| {
-            t.iter()
-                .filter_map(|tag| {
-                    if *tag == lsp_types::SymbolTag::DEPRECATED {
-                        Some(SymbolTag::Deprecated)
-                    } else {
-                        None
-                    }
-                })
-                .collect()
-        });
+    let tags = item.tags.as_ref().map_or_else(Vec::new, |t| {
+        t.iter()
+            .filter_map(|tag| {
+                if *tag == lsp_types::SymbolTag::DEPRECATED {
+                    Some(SymbolTag::Deprecated)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    });
 
     CallHierarchyItemInfo {
         name: item.name.clone(),
@@ -321,10 +318,7 @@ mod tests {
             kind: 6,
             tags: vec![SymbolTag::Deprecated],
             uri: "file:///t.rs".into(),
-            range: sidex_text::Range::new(
-                sidex_text::Position::ZERO,
-                sidex_text::Position::ZERO,
-            ),
+            range: sidex_text::Range::new(sidex_text::Position::ZERO, sidex_text::Position::ZERO),
             selection_range: sidex_text::Range::new(
                 sidex_text::Position::ZERO,
                 sidex_text::Position::ZERO,

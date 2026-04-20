@@ -36,10 +36,7 @@ pub struct DocumentLinkService;
 
 impl DocumentLinkService {
     /// Request document links for the given file.
-    pub async fn provide_links(
-        client: &LspClient,
-        uri: &str,
-    ) -> Result<Vec<DocumentLink>> {
+    pub async fn provide_links(client: &LspClient, uri: &str) -> Result<Vec<DocumentLink>> {
         provide_document_links(client, uri).await
     }
 
@@ -53,10 +50,7 @@ impl DocumentLinkService {
 }
 
 /// Requests all document links for a file.
-pub async fn provide_document_links(
-    client: &LspClient,
-    uri: &str,
-) -> Result<Vec<DocumentLink>> {
+pub async fn provide_document_links(client: &LspClient, uri: &str) -> Result<Vec<DocumentLink>> {
     let params = DocumentLinkParams {
         text_document: TextDocumentIdentifier::new(Uri::from_str(uri).context("invalid URI")?),
         work_done_progress_params: WorkDoneProgressParams::default(),

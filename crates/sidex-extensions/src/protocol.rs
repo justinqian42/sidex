@@ -301,19 +301,41 @@ pub struct TreeItem {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum MessageSeverity { Info, Warning, Error }
+pub enum MessageSeverity {
+    Info,
+    Warning,
+    Error,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum RevealType { Default, InCenter, InCenterIfOutsideViewport, AtTop }
+pub enum RevealType {
+    Default,
+    InCenter,
+    InCenterIfOutsideViewport,
+    AtTop,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum StatusBarAlignment { Left, Right }
+pub enum StatusBarAlignment {
+    Left,
+    Right,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ViewColumn { Active, Beside, One, Two, Three }
+pub enum ViewColumn {
+    Active,
+    Beside,
+    One,
+    Two,
+    Three,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ConfigurationTarget { Global, Workspace, WorkspaceFolder }
+pub enum ConfigurationTarget {
+    Global,
+    Workspace,
+    WorkspaceFolder,
+}
 
 /// Extension description sent to the host during initialization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -369,17 +391,32 @@ pub struct ResponseError {
 pub enum MainToExtHost {
     // -- Lifecycle --
     #[serde(rename = "$initData")]
-    InitData { extensions: Vec<ExtensionDescription>, environment: HostEnvironment },
+    InitData {
+        extensions: Vec<ExtensionDescription>,
+        environment: HostEnvironment,
+    },
     #[serde(rename = "$activateExtension")]
-    ActivateExtension { extension_id: ExtensionId, activation_event: String },
+    ActivateExtension {
+        extension_id: ExtensionId,
+        activation_event: String,
+    },
     #[serde(rename = "$startExtensionHost")]
     StartExtensionHost { extensions: Vec<Value> },
 
     // -- Document sync --
     #[serde(rename = "$documentOpened")]
-    DocumentOpened { uri: DocumentUri, language_id: String, version: i32, content: String },
+    DocumentOpened {
+        uri: DocumentUri,
+        language_id: String,
+        version: i32,
+        content: String,
+    },
     #[serde(rename = "$updateDocument")]
-    UpdateDocument { uri: DocumentUri, changes: Vec<TextEdit>, version: u32 },
+    UpdateDocument {
+        uri: DocumentUri,
+        changes: Vec<TextEdit>,
+        version: u32,
+    },
     #[serde(rename = "$documentClosed")]
     DocumentClosed { uri: DocumentUri },
     #[serde(rename = "$documentSaved")]
@@ -387,37 +424,84 @@ pub enum MainToExtHost {
 
     // -- Editor state --
     #[serde(rename = "$setActiveEditor")]
-    SetActiveEditor { uri: DocumentUri, selections: Vec<Selection>, visible_ranges: Vec<Range> },
+    SetActiveEditor {
+        uri: DocumentUri,
+        selections: Vec<Selection>,
+        visible_ranges: Vec<Range>,
+    },
     #[serde(rename = "$setVisibleEditors")]
     SetVisibleEditors { editors: Vec<EditorInfo> },
     #[serde(rename = "$activeEditorChanged")]
     ActiveEditorChanged { uri: Option<DocumentUri> },
     #[serde(rename = "$selectionChanged")]
-    SelectionChanged { uri: DocumentUri, selections: Vec<Selection> },
+    SelectionChanged {
+        uri: DocumentUri,
+        selections: Vec<Selection>,
+    },
     #[serde(rename = "$visibleRangesChanged")]
-    VisibleRangesChanged { uri: DocumentUri, ranges: Vec<Range> },
+    VisibleRangesChanged {
+        uri: DocumentUri,
+        ranges: Vec<Range>,
+    },
 
     // -- Language features --
     #[serde(rename = "$provideCompletionItems")]
-    ProvideCompletionItems { handle: Handle, uri: DocumentUri, position: Position, context: CompletionContext },
+    ProvideCompletionItems {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+        context: CompletionContext,
+    },
     #[serde(rename = "$provideHover")]
-    ProvideHover { handle: Handle, uri: DocumentUri, position: Position },
+    ProvideHover {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+    },
     #[serde(rename = "$provideDefinition")]
-    ProvideDefinition { handle: Handle, uri: DocumentUri, position: Position },
+    ProvideDefinition {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+    },
     #[serde(rename = "$provideReferences")]
-    ProvideReferences { handle: Handle, uri: DocumentUri, position: Position, context: ReferenceContext },
+    ProvideReferences {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+        context: ReferenceContext,
+    },
     #[serde(rename = "$provideSignatureHelp")]
-    ProvideSignatureHelp { handle: Handle, uri: DocumentUri, position: Position, context: SignatureHelpContext },
+    ProvideSignatureHelp {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+        context: SignatureHelpContext,
+    },
     #[serde(rename = "$provideDocumentSymbols")]
     ProvideDocumentSymbols { handle: Handle, uri: DocumentUri },
     #[serde(rename = "$provideCodeActions")]
-    ProvideCodeActions { handle: Handle, uri: DocumentUri, range: Range, context: CodeActionContext },
+    ProvideCodeActions {
+        handle: Handle,
+        uri: DocumentUri,
+        range: Range,
+        context: CodeActionContext,
+    },
     #[serde(rename = "$provideCodeLenses")]
     ProvideCodeLenses { handle: Handle, uri: DocumentUri },
     #[serde(rename = "$provideDocumentFormattingEdits")]
-    ProvideDocumentFormattingEdits { handle: Handle, uri: DocumentUri, options: FormattingOptions },
+    ProvideDocumentFormattingEdits {
+        handle: Handle,
+        uri: DocumentUri,
+        options: FormattingOptions,
+    },
     #[serde(rename = "$provideRenameEdits")]
-    ProvideRenameEdits { handle: Handle, uri: DocumentUri, position: Position, new_name: String },
+    ProvideRenameEdits {
+        handle: Handle,
+        uri: DocumentUri,
+        position: Position,
+        new_name: String,
+    },
     #[serde(rename = "$resolveCompletionItem")]
     ResolveCompletionItem { handle: Handle, item: Value },
     #[serde(rename = "$resolveCodeLens")]
@@ -435,7 +519,10 @@ pub enum MainToExtHost {
 
     // -- Workspace --
     #[serde(rename = "$onDidChangeWorkspaceFolders")]
-    OnDidChangeWorkspaceFolders { added: Vec<WorkspaceFolder>, removed: Vec<WorkspaceFolder> },
+    OnDidChangeWorkspaceFolders {
+        added: Vec<WorkspaceFolder>,
+        removed: Vec<WorkspaceFolder>,
+    },
 
     // -- File system events --
     #[serde(rename = "$fileCreated")]
@@ -451,11 +538,22 @@ pub enum MainToExtHost {
 
     // -- Tree view --
     #[serde(rename = "$treeViewGetChildren")]
-    TreeViewGetChildren { request_id: u64, view_id: String, element: Option<String> },
+    TreeViewGetChildren {
+        request_id: u64,
+        view_id: String,
+        element: Option<String>,
+    },
     #[serde(rename = "$treeViewSetExpanded")]
-    TreeViewSetExpanded { view_id: String, element: String, expanded: bool },
+    TreeViewSetExpanded {
+        view_id: String,
+        element: String,
+        expanded: bool,
+    },
     #[serde(rename = "$treeViewSetSelection")]
-    TreeViewSetSelection { view_id: String, elements: Vec<String> },
+    TreeViewSetSelection {
+        view_id: String,
+        elements: Vec<String>,
+    },
     #[serde(rename = "$treeViewSetVisible")]
     TreeViewSetVisible { view_id: String, visible: bool },
 
@@ -471,11 +569,17 @@ pub enum MainToExtHost {
     #[serde(rename = "$taskStarted")]
     TaskStarted { task_id: String },
     #[serde(rename = "$taskEnded")]
-    TaskEnded { task_id: String, exit_code: Option<i32> },
+    TaskEnded {
+        task_id: String,
+        exit_code: Option<i32>,
+    },
 
     // -- Debug --
     #[serde(rename = "$debugSessionStarted")]
-    DebugSessionStarted { session_id: String, debug_type: String },
+    DebugSessionStarted {
+        session_id: String,
+        debug_type: String,
+    },
     #[serde(rename = "$debugSessionTerminated")]
     DebugSessionTerminated { session_id: String },
 }
@@ -489,27 +593,54 @@ pub enum MainToExtHost {
 pub enum ExtHostToMain {
     // -- Provider registration --
     #[serde(rename = "$registerProvider")]
-    RegisterProvider { handle: Handle, selector: Vec<DocumentSelector>, metadata: ProviderMetadata },
+    RegisterProvider {
+        handle: Handle,
+        selector: Vec<DocumentSelector>,
+        metadata: ProviderMetadata,
+    },
 
     // -- Responses --
     #[serde(rename = "$response")]
     Response { request_id: u64, result: Value },
     #[serde(rename = "$responseError")]
-    ResponseError { request_id: u64, error: ResponseError },
+    ResponseError {
+        request_id: u64,
+        error: ResponseError,
+    },
 
     // -- UI: messages --
     #[serde(rename = "$showInformationMessage")]
-    ShowInformationMessage { message: String, #[serde(default)] items: Vec<String> },
+    ShowInformationMessage {
+        message: String,
+        #[serde(default)]
+        items: Vec<String>,
+    },
     #[serde(rename = "$showWarningMessage")]
-    ShowWarningMessage { message: String, #[serde(default)] items: Vec<String> },
+    ShowWarningMessage {
+        message: String,
+        #[serde(default)]
+        items: Vec<String>,
+    },
     #[serde(rename = "$showErrorMessage")]
-    ShowErrorMessage { message: String, #[serde(default)] items: Vec<String> },
+    ShowErrorMessage {
+        message: String,
+        #[serde(default)]
+        items: Vec<String>,
+    },
     #[serde(rename = "$showMessage")]
-    ShowMessage { severity: MessageSeverity, message: String, #[serde(default)] actions: Vec<String> },
+    ShowMessage {
+        severity: MessageSeverity,
+        message: String,
+        #[serde(default)]
+        actions: Vec<String>,
+    },
 
     // -- UI: quick pick / input box --
     #[serde(rename = "$showQuickPick")]
-    ShowQuickPick { items: Vec<Value>, options: QuickPickOptions },
+    ShowQuickPick {
+        items: Vec<Value>,
+        options: QuickPickOptions,
+    },
     #[serde(rename = "$showInputBox")]
     ShowInputBox { options: InputBoxOptions },
     #[serde(rename = "$showOpenDialog")]
@@ -521,13 +652,28 @@ pub enum ExtHostToMain {
     #[serde(rename = "$applyWorkspaceEdit")]
     ApplyWorkspaceEdit { edit: WorkspaceEdit },
     #[serde(rename = "$insertSnippet")]
-    InsertSnippet { uri: DocumentUri, snippet: String, ranges: Vec<Range> },
+    InsertSnippet {
+        uri: DocumentUri,
+        snippet: String,
+        ranges: Vec<Range>,
+    },
     #[serde(rename = "$setDecorations")]
-    SetDecorations { handle: Handle, uri: DocumentUri, decorations: Vec<DecorationData> },
+    SetDecorations {
+        handle: Handle,
+        uri: DocumentUri,
+        decorations: Vec<DecorationData>,
+    },
     #[serde(rename = "$revealRange")]
-    RevealRange { uri: DocumentUri, range: Range, reveal_type: RevealType },
+    RevealRange {
+        uri: DocumentUri,
+        range: Range,
+        reveal_type: RevealType,
+    },
     #[serde(rename = "$showTextDocument")]
-    ShowTextDocument { uri: DocumentUri, options: ShowTextDocumentOptions },
+    ShowTextDocument {
+        uri: DocumentUri,
+        options: ShowTextDocumentOptions,
+    },
 
     // -- Document operations --
     #[serde(rename = "$openDocument")]
@@ -553,13 +699,21 @@ pub enum ExtHostToMain {
 
     // -- Status bar --
     #[serde(rename = "$setStatusBarMessage")]
-    SetStatusBarMessage { text: String, #[serde(default)] timeout: Option<u64> },
+    SetStatusBarMessage {
+        text: String,
+        #[serde(default)]
+        timeout: Option<u64>,
+    },
     #[serde(rename = "$setStatusBarItem")]
     SetStatusBarItem {
-        id: String, text: String,
-        #[serde(default)] tooltip: Option<String>,
-        #[serde(default)] command: Option<String>,
-        alignment: StatusBarAlignment, priority: i32,
+        id: String,
+        text: String,
+        #[serde(default)]
+        tooltip: Option<String>,
+        #[serde(default)]
+        command: Option<String>,
+        alignment: StatusBarAlignment,
+        priority: i32,
     },
     #[serde(rename = "$disposeStatusBarItem")]
     DisposeStatusBarItem { id: String },
@@ -568,13 +722,21 @@ pub enum ExtHostToMain {
     #[serde(rename = "$registerCommand")]
     RegisterCommand { id: String },
     #[serde(rename = "$executeCommand")]
-    ExecuteCommand { command: String, #[serde(default)] args: Vec<Value> },
+    ExecuteCommand {
+        command: String,
+        #[serde(default)]
+        args: Vec<Value>,
+    },
 
     // -- Configuration --
     #[serde(rename = "$getConfiguration")]
     GetConfiguration { section: String },
     #[serde(rename = "$updateConfiguration")]
-    UpdateConfiguration { section: String, value: Value, target: ConfigurationTarget },
+    UpdateConfiguration {
+        section: String,
+        value: Value,
+        target: ConfigurationTarget,
+    },
 
     // -- File system --
     #[serde(rename = "$readFile")]
@@ -590,11 +752,19 @@ pub enum ExtHostToMain {
     #[serde(rename = "$deleteFile")]
     DeleteFile { uri: DocumentUri, recursive: bool },
     #[serde(rename = "$rename")]
-    Rename { old_uri: DocumentUri, new_uri: DocumentUri },
+    Rename {
+        old_uri: DocumentUri,
+        new_uri: DocumentUri,
+    },
 
     // -- Webview --
     #[serde(rename = "$createWebviewPanel")]
-    CreateWebviewPanel { view_type: String, title: String, column: i32, options: WebviewPanelOptions },
+    CreateWebviewPanel {
+        view_type: String,
+        title: String,
+        column: i32,
+        options: WebviewPanelOptions,
+    },
     #[serde(rename = "$postMessageToWebview")]
     PostMessageToWebview { handle: Handle, message: Value },
     #[serde(rename = "$setWebviewHtml")]
@@ -606,13 +776,25 @@ pub enum ExtHostToMain {
     #[serde(rename = "$refreshTreeView")]
     RefreshTreeView { view_id: String },
     #[serde(rename = "$treeViewGetChildrenResponse")]
-    TreeViewGetChildrenResponse { request_id: u64, items: Vec<TreeItem> },
+    TreeViewGetChildrenResponse {
+        request_id: u64,
+        items: Vec<TreeItem>,
+    },
 
     // -- Progress --
     #[serde(rename = "$createProgress")]
-    CreateProgress { id: String, options: ProgressOptions },
+    CreateProgress {
+        id: String,
+        options: ProgressOptions,
+    },
     #[serde(rename = "$updateProgress")]
-    UpdateProgress { id: String, #[serde(default)] message: Option<String>, #[serde(default)] increment: Option<f32> },
+    UpdateProgress {
+        id: String,
+        #[serde(default)]
+        message: Option<String>,
+        #[serde(default)]
+        increment: Option<f32>,
+    },
     #[serde(rename = "$endProgress")]
     EndProgress { id: String },
 
@@ -650,25 +832,62 @@ pub struct RpcError {
 
 impl RpcMessage {
     pub fn request(id: u64, method: &str, params: Value) -> Self {
-        Self { jsonrpc: "2.0".into(), id: Some(id), method: Some(method.into()), params: Some(params), result: None, error: None }
+        Self {
+            jsonrpc: "2.0".into(),
+            id: Some(id),
+            method: Some(method.into()),
+            params: Some(params),
+            result: None,
+            error: None,
+        }
     }
 
     pub fn notification(method: &str, params: Value) -> Self {
-        Self { jsonrpc: "2.0".into(), id: None, method: Some(method.into()), params: Some(params), result: None, error: None }
+        Self {
+            jsonrpc: "2.0".into(),
+            id: None,
+            method: Some(method.into()),
+            params: Some(params),
+            result: None,
+            error: None,
+        }
     }
 
     pub fn success(id: u64, result: Value) -> Self {
-        Self { jsonrpc: "2.0".into(), id: Some(id), method: None, params: None, result: Some(result), error: None }
+        Self {
+            jsonrpc: "2.0".into(),
+            id: Some(id),
+            method: None,
+            params: None,
+            result: Some(result),
+            error: None,
+        }
     }
 
     pub fn error_response(id: u64, code: i64, message: impl Into<String>) -> Self {
-        Self { jsonrpc: "2.0".into(), id: Some(id), method: None, params: None, result: None,
-            error: Some(RpcError { code, message: message.into(), data: None }) }
+        Self {
+            jsonrpc: "2.0".into(),
+            id: Some(id),
+            method: None,
+            params: None,
+            result: None,
+            error: Some(RpcError {
+                code,
+                message: message.into(),
+                data: None,
+            }),
+        }
     }
 
-    pub fn is_request(&self) -> bool { self.id.is_some() && self.method.is_some() }
-    pub fn is_notification(&self) -> bool { self.id.is_none() && self.method.is_some() }
-    pub fn is_response(&self) -> bool { self.id.is_some() && self.method.is_none() }
+    pub fn is_request(&self) -> bool {
+        self.id.is_some() && self.method.is_some()
+    }
+    pub fn is_notification(&self) -> bool {
+        self.id.is_none() && self.method.is_some()
+    }
+    pub fn is_response(&self) -> bool {
+        self.id.is_some() && self.method.is_none()
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -689,7 +908,10 @@ mod tests {
         assert!(json.contains("$activateExtension"));
         let back: MainToExtHost = serde_json::from_str(&json).unwrap();
         match back {
-            MainToExtHost::ActivateExtension { extension_id, activation_event } => {
+            MainToExtHost::ActivateExtension {
+                extension_id,
+                activation_event,
+            } => {
                 assert_eq!(extension_id, "rust-lang.rust-analyzer");
                 assert_eq!(activation_event, "onLanguage:rust");
             }
@@ -702,12 +924,19 @@ mod tests {
         let msg = MainToExtHost::ProvideHover {
             handle: 42,
             uri: "file:///test.rs".into(),
-            position: Position { line: 10, character: 5 },
+            position: Position {
+                line: 10,
+                character: 5,
+            },
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: MainToExtHost = serde_json::from_str(&json).unwrap();
         match back {
-            MainToExtHost::ProvideHover { handle, uri, position } => {
+            MainToExtHost::ProvideHover {
+                handle,
+                uri,
+                position,
+            } => {
                 assert_eq!(handle, 42);
                 assert_eq!(uri, "file:///test.rs");
                 assert_eq!(position.line, 10);
@@ -738,13 +967,24 @@ mod tests {
     fn roundtrip_ext_to_main_register_provider() {
         let msg = ExtHostToMain::RegisterProvider {
             handle: 7,
-            selector: vec![DocumentSelector { language: Some("rust".into()), scheme: Some("file".into()), pattern: None }],
-            metadata: ProviderMetadata { trigger_characters: vec![".".into(), ":".into()], resolve_provider: true },
+            selector: vec![DocumentSelector {
+                language: Some("rust".into()),
+                scheme: Some("file".into()),
+                pattern: None,
+            }],
+            metadata: ProviderMetadata {
+                trigger_characters: vec![".".into(), ":".into()],
+                resolve_provider: true,
+            },
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: ExtHostToMain = serde_json::from_str(&json).unwrap();
         match back {
-            ExtHostToMain::RegisterProvider { handle, selector, metadata } => {
+            ExtHostToMain::RegisterProvider {
+                handle,
+                selector,
+                metadata,
+            } => {
                 assert_eq!(handle, 7);
                 assert_eq!(selector.len(), 1);
                 assert_eq!(selector[0].language.as_deref(), Some("rust"));
@@ -762,8 +1002,14 @@ mod tests {
                     uri: "file:///test.rs".into(),
                     edits: vec![TextEdit {
                         range: Range {
-                            start: Position { line: 0, character: 0 },
-                            end: Position { line: 0, character: 5 },
+                            start: Position {
+                                line: 0,
+                                character: 0,
+                            },
+                            end: Position {
+                                line: 0,
+                                character: 5,
+                            },
                         },
                         text: "hello".into(),
                     }],
@@ -817,14 +1063,23 @@ mod tests {
     #[test]
     fn roundtrip_main_to_ext_completion() {
         let msg = MainToExtHost::ProvideCompletionItems {
-            handle: 1, uri: "file:///main.rs".into(),
-            position: Position { line: 5, character: 12 },
-            context: CompletionContext { trigger_kind: 1, trigger_character: Some(".".into()) },
+            handle: 1,
+            uri: "file:///main.rs".into(),
+            position: Position {
+                line: 5,
+                character: 12,
+            },
+            context: CompletionContext {
+                trigger_kind: 1,
+                trigger_character: Some(".".into()),
+            },
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: MainToExtHost = serde_json::from_str(&json).unwrap();
         match back {
-            MainToExtHost::ProvideCompletionItems { handle, context, .. } => {
+            MainToExtHost::ProvideCompletionItems {
+                handle, context, ..
+            } => {
                 assert_eq!(handle, 1);
                 assert_eq!(context.trigger_character.as_deref(), Some("."));
             }
@@ -835,13 +1090,24 @@ mod tests {
     #[test]
     fn roundtrip_ext_to_main_create_webview() {
         let msg = ExtHostToMain::CreateWebviewPanel {
-            view_type: "markdown.preview".into(), title: "Preview".into(), column: 2,
-            options: WebviewPanelOptions { enable_scripts: true, retain_context_when_hidden: false, local_resource_roots: vec!["/workspace".into()] },
+            view_type: "markdown.preview".into(),
+            title: "Preview".into(),
+            column: 2,
+            options: WebviewPanelOptions {
+                enable_scripts: true,
+                retain_context_when_hidden: false,
+                local_resource_roots: vec!["/workspace".into()],
+            },
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: ExtHostToMain = serde_json::from_str(&json).unwrap();
         match back {
-            ExtHostToMain::CreateWebviewPanel { view_type, title, options, .. } => {
+            ExtHostToMain::CreateWebviewPanel {
+                view_type,
+                title,
+                options,
+                ..
+            } => {
                 assert_eq!(view_type, "markdown.preview");
                 assert_eq!(title, "Preview");
                 assert!(options.enable_scripts);
@@ -853,12 +1119,20 @@ mod tests {
     #[test]
     fn roundtrip_document_opened() {
         let msg = MainToExtHost::DocumentOpened {
-            uri: "file:///test.rs".into(), language_id: "rust".into(), version: 1, content: "fn main() {}".into(),
+            uri: "file:///test.rs".into(),
+            language_id: "rust".into(),
+            version: 1,
+            content: "fn main() {}".into(),
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: MainToExtHost = serde_json::from_str(&json).unwrap();
         match back {
-            MainToExtHost::DocumentOpened { uri, language_id, version, content } => {
+            MainToExtHost::DocumentOpened {
+                uri,
+                language_id,
+                version,
+                content,
+            } => {
                 assert_eq!(uri, "file:///test.rs");
                 assert_eq!(language_id, "rust");
                 assert_eq!(version, 1);
@@ -870,11 +1144,16 @@ mod tests {
 
     #[test]
     fn roundtrip_file_operations() {
-        let msg = ExtHostToMain::ReadFile { uri: "file:///test.rs".into() };
+        let msg = ExtHostToMain::ReadFile {
+            uri: "file:///test.rs".into(),
+        };
         let json = serde_json::to_string(&msg).unwrap();
         assert!(json.contains("$readFile"));
 
-        let msg = ExtHostToMain::WriteFile { uri: "file:///test.rs".into(), content: vec![104, 105] };
+        let msg = ExtHostToMain::WriteFile {
+            uri: "file:///test.rs".into(),
+            content: vec![104, 105],
+        };
         let json = serde_json::to_string(&msg).unwrap();
         assert!(json.contains("$writeFile"));
     }
@@ -883,7 +1162,11 @@ mod tests {
     fn roundtrip_progress() {
         let msg = ExtHostToMain::CreateProgress {
             id: "p1".into(),
-            options: ProgressOptions { location: 15, title: Some("Building...".into()), cancellable: true },
+            options: ProgressOptions {
+                location: 15,
+                title: Some("Building...".into()),
+                cancellable: true,
+            },
         };
         let json = serde_json::to_string(&msg).unwrap();
         let back: ExtHostToMain = serde_json::from_str(&json).unwrap();

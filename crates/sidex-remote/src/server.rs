@@ -604,10 +604,7 @@ impl SideXServer {
 
     async fn ext_list(&self, id: u64) -> Response {
         let exts = self.extensions.lock().await;
-        Response::ok(
-            id,
-            serde_json::json!({ "extensions": exts.activated }),
-        )
+        Response::ok(id, serde_json::json!({ "extensions": exts.activated }))
     }
 
     // -- server meta --------------------------------------------------------

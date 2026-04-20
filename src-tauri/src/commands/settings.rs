@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
 use serde_json::Value;
-use sidex_settings::{parse_jsonc, modify_jsonc, Settings};
+use sidex_settings::{modify_jsonc, parse_jsonc, Settings};
 use tauri::State;
 
 pub struct SettingsStore {
@@ -89,7 +89,11 @@ pub fn settings_update(
     match scope.as_str() {
         "user" => settings.set(&key, value),
         "workspace" => settings.set_workspace(&key, value),
-        _ => return Err(format!("invalid scope '{scope}': expected \"user\" or \"workspace\"")),
+        _ => {
+            return Err(format!(
+                "invalid scope '{scope}': expected \"user\" or \"workspace\""
+            ))
+        }
     }
     Ok(())
 }
@@ -108,7 +112,9 @@ pub fn settings_load(
     match scope.as_str() {
         "user" => state.load_user(p),
         "workspace" => state.load_workspace(p),
-        _ => Err(format!("invalid scope '{scope}': expected \"user\" or \"workspace\"")),
+        _ => Err(format!(
+            "invalid scope '{scope}': expected \"user\" or \"workspace\""
+        )),
     }
 }
 

@@ -14,6 +14,7 @@ use commands::settings::SettingsStore;
 use commands::storage::StorageDb;
 use commands::tasks::TaskProcessStore;
 use commands::terminal::TerminalStore;
+use commands::updater::UpdateManagerState;
 use commands::watch::WatchStore;
 use commands::window::restore_and_show;
 use std::sync::Arc;
@@ -372,7 +373,9 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(UpdateManagerState::new())
+        .manage(Arc::new(commands::textmate::TextMateStore::new()))
+        .manage(Arc::new(commands::extensions::MarketplaceClientState::new()))
         .manage(Arc::new(TerminalStore::new()))
         .manage(Arc::new(ProcessStore::new()))
         .manage(Arc::new(DebugAdapterStore::new()))
@@ -411,6 +414,16 @@ pub fn run() {
 
             let process_store = app.state::<Arc<ProcessStore>>();
             process_store.set_app_handle(app.handle().clone());
+
+            if let Err(err) = commands::updater::initialize(app.handle()) {
+                log::warn!("update manager disabled: {err}");
+            }
+            if let Err(err) = commands::profiles::initialize(app.handle()) {
+                log::warn!("profile storage disabled: {err}");
+            }
+            if let Err(err) = commands::secrets::initialize(app.handle()) {
+                log::warn!("secret storage disabled: {err}");
+            }
 
             #[cfg(target_os = "macos")]
             {
@@ -535,6 +548,26 @@ pub fn run() {
             commands::set_window_title,
             commands::get_monitors,
             commands::save_window_state,
+            commands::update_check,
+            commands::update_download,
+            commands::update_apply,
+            commands::update_cancel,
+            commands::update_state,
+            commands::update_cleanup,
+            commands::update_quit_and_install,
+            commands::profiles_load,
+            commands::profiles_save,
+            commands::profiles_load_associations,
+            commands::profiles_save_associations,
+            commands::secret_get,
+            commands::secret_set,
+            commands::secret_delete,
+            commands::secret_keys,
+            commands::textmate_load_grammar,
+            commands::textmate_update_theme,
+            commands::textmate_tokenize_line,
+            commands::textmate_tokenize_line_binary,
+            commands::textmate_release_stack,
             commands::get_os_info,
             commands::get_env,
             commands::get_all_env,
@@ -699,8 +732,10 @@ pub fn run() {
             // Syntax / language info
             commands::syntax_get_languages,
             commands::syntax_detect_language,
+            commands::syntax_detect_from_content,
             commands::syntax_get_language_config,
             commands::syntax_tokenize,
+            commands::textmate_tokenize_lines,
             // Theme management
             commands::theme_list,
             commands::theme_get,

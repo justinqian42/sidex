@@ -159,9 +159,7 @@ impl DirtyDiffProvider {
 
 /// Get the HEAD version of a file from git.
 pub fn get_original_content(path: &Path, repo_root: &Path) -> Result<String, String> {
-    let relative = path
-        .strip_prefix(repo_root)
-        .unwrap_or(path);
+    let relative = path.strip_prefix(repo_root).unwrap_or(path);
     let relative_str = relative.to_string_lossy();
 
     let output = Command::new("git")

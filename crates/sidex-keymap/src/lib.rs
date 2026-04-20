@@ -6,8 +6,8 @@
 
 pub mod context;
 pub mod defaults;
-pub mod keyboard_shortcut_editor;
 pub mod keybinding;
+pub mod keyboard_shortcut_editor;
 pub mod resolver;
 
 pub use context::{
@@ -15,12 +15,12 @@ pub use context::{
     WhenClauseError,
 };
 pub use defaults::default_keybindings;
-pub use keyboard_shortcut_editor::{
-    format_keybinding, get_all_keybinding_entries, keybinding_to_json, parse_keybinding_string,
-    CommandInfo, KeybindingEntry, KeybindingRecorder,
-};
 pub use keybinding::{
     ChordState, Key, KeyBinding, KeyChord, KeyCombo, KeybindingMatch, KeybindingSource, Modifiers,
     ResolvedKeybinding,
+};
+pub use keyboard_shortcut_editor::{
+    format_keybinding, get_all_keybinding_entries, keybinding_to_json, parse_keybinding_string,
+    CommandInfo, KeybindingEntry, KeybindingRecorder,
 };
 pub use resolver::KeybindingResolver;

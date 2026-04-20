@@ -12,9 +12,51 @@ use std::time::Instant;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-const DEFAULT_BASE_URL: &str = "https://open-vsx.org/api";
+/// Default marketplace base URL. Points at the SideX Cloudflare
+/// Worker, which merges Microsoft Marketplace + Open VSX and exposes
+/// them under an Open-VSX-compatible `/api/-/search` endpoint so this
+/// client can keep using its existing JSON schema.
+///
+/// Override via `MarketplaceClient::with_base_url` (e.g. tests, or
+/// users who want to point at a self-hosted proxy or at
+/// `https://open-vsx.org/api` directly).
+const DEFAULT_BASE_URL: &str = "https://marketplace.siden.ai/api";
 const DEFAULT_PAGE_SIZE: u32 = 20;
 const CACHE_TTL_SECS: u64 = 300;
+
+/// Builds a [`reqwest::Client`] tuned for marketplace traffic. Keeps a
+/// long-lived connection pool with TCP keep-alive, request-level
+/// gzip/brotli, HTTP/2 adaptive windowing, and a generous
+/// connect+request timeout. The client is meant to be constructed
+/// **once per process** — repeated `reqwest::Client::new()` calls in
+/// earlier revisions were the main source of search latency because
+/// every call re-did DNS + TCP + TLS.
+///
+/// Keep-alive is intentionally aggressive so a user who does
+/// `search → click extension → install` reuses the same TCP + TLS
+/// session for all three requests. With the Worker on Cloudflare, the
+/// RTT from a warm connection to cache hit is a single HTTP/2 frame.
+fn build_http_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .user_agent(concat!(
+            "SideX/",
+            env!("CARGO_PKG_VERSION"),
+            " (+https://github.com/sidenai/sidex)"
+        ))
+        .tcp_keepalive(Some(std::time::Duration::from_secs(60)))
+        .http2_keep_alive_interval(Some(std::time::Duration::from_secs(30)))
+        .http2_keep_alive_timeout(std::time::Duration::from_secs(10))
+        .http2_keep_alive_while_idle(true)
+        .http2_adaptive_window(true)
+        .pool_idle_timeout(Some(std::time::Duration::from_secs(90)))
+        .pool_max_idle_per_host(8)
+        .connect_timeout(std::time::Duration::from_secs(5))
+        .timeout(std::time::Duration::from_secs(15))
+        .gzip(true)
+        .brotli(true)
+        .build()
+        .unwrap_or_else(|_| reqwest::Client::new())
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -214,6 +256,10 @@ pub struct SearchFilters {
 struct CachedQuery {
     result: SearchResult,
     fetched_at: Instant,
+    /// ETag returned by the upstream (or our Cloudflare Worker). Used
+    /// for conditional revalidation so stale entries cost a 304
+    /// round-trip instead of the full JSON body.
+    etag: Option<String>,
 }
 
 // ---------------------------------------------------------------------------
@@ -235,7 +281,7 @@ impl MarketplaceClient {
             base_url: DEFAULT_BASE_URL.to_owned(),
             cache_dir: std::env::temp_dir().join("sidex-marketplace-cache"),
             cached_queries: HashMap::new(),
-            http: reqwest::Client::new(),
+            http: build_http_client(),
         }
     }
 
@@ -245,19 +291,14 @@ impl MarketplaceClient {
             base_url: base_url.trim_end_matches('/').to_owned(),
             cache_dir: std::env::temp_dir().join("sidex-marketplace-cache"),
             cached_queries: HashMap::new(),
-            http: reqwest::Client::new(),
+            http: build_http_client(),
         }
     }
 
     // -- Search -----------------------------------------------------------
 
     /// Searches for extensions matching `query` with pagination.
-    pub async fn search(
-        &mut self,
-        query: &str,
-        page: u32,
-        page_size: u32,
-    ) -> Result<SearchResult> {
+    pub async fn search(&mut self, query: &str, page: u32, page_size: u32) -> Result<SearchResult> {
         self.search_with_filters(query, page, page_size, &SearchFilters::default())
             .await
     }
@@ -270,7 +311,11 @@ impl MarketplaceClient {
         page_size: u32,
         filters: &SearchFilters,
     ) -> Result<SearchResult> {
-        let size = if page_size == 0 { DEFAULT_PAGE_SIZE } else { page_size };
+        let size = if page_size == 0 {
+            DEFAULT_PAGE_SIZE
+        } else {
+            page_size
+        };
         let offset = page * size;
 
         let mut url = format!(
@@ -289,18 +334,43 @@ impl MarketplaceClient {
         }
 
         let cache_key = url.clone();
+        let cached_etag = self
+            .cached_queries
+            .get(&cache_key)
+            .and_then(|entry| entry.etag.clone());
+
         if let Some(entry) = self.cached_queries.get(&cache_key) {
             if entry.fetched_at.elapsed().as_secs() < CACHE_TTL_SECS {
                 return Ok(entry.result.clone());
             }
         }
 
-        let resp: OpenVsxSearchResponse = self
-            .http
-            .get(&url)
+        let mut request = self.http.get(&url);
+        if let Some(ref etag) = cached_etag {
+            request = request.header(reqwest::header::IF_NONE_MATCH, etag);
+        }
+        let response = request
             .send()
             .await
-            .context("marketplace search request failed")?
+            .context("marketplace search request failed")?;
+
+        // 304 Not Modified: our cached body is still fresh. Bump the
+        // fetched_at timestamp so we don't re-validate on every call
+        // and return the cached result directly.
+        if response.status() == reqwest::StatusCode::NOT_MODIFIED {
+            if let Some(entry) = self.cached_queries.get_mut(&cache_key) {
+                entry.fetched_at = Instant::now();
+                return Ok(entry.result.clone());
+            }
+        }
+
+        let response_etag = response
+            .headers()
+            .get(reqwest::header::ETAG)
+            .and_then(|v| v.to_str().ok())
+            .map(ToOwned::to_owned);
+
+        let resp: OpenVsxSearchResponse = response
             .json()
             .await
             .context("failed to parse marketplace search response")?;
@@ -310,11 +380,25 @@ impl MarketplaceClient {
             total_count: resp.total_size.unwrap_or(0),
         };
 
+        // Cap the cache so long-lived sessions don't accumulate unbounded
+        // query keys. 256 entries × ~20 extensions each ≈ still well
+        // under a MB, but new entries evict the oldest once full.
+        if self.cached_queries.len() >= 256 {
+            if let Some(oldest) = self
+                .cached_queries
+                .iter()
+                .min_by_key(|(_, v)| v.fetched_at)
+                .map(|(k, _)| k.clone())
+            {
+                self.cached_queries.remove(&oldest);
+            }
+        }
         self.cached_queries.insert(
             cache_key,
             CachedQuery {
                 result: result.clone(),
                 fetched_at: Instant::now(),
+                etag: response_etag,
             },
         );
 
@@ -587,6 +671,7 @@ mod tests {
                     total_count: 0,
                 },
                 fetched_at: Instant::now(),
+                etag: None,
             },
         );
         assert_eq!(client.cached_queries.len(), 1);

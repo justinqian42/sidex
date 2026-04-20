@@ -25,6 +25,6 @@ pub use profiles::{
 pub use schema::{validate_setting, SchemaRegistry, SettingSchema, SettingScope, SettingType};
 pub use settings::Settings;
 pub use sync::{
-    merge, ConflictResolution, SettingsSync, SyncAccount, SyncAuthProvider, SyncConflict,
-    SyncData, SyncDataProvider, SyncResource, SyncResult, SyncState,
+    merge, ConflictResolution, SettingsSync, SyncAccount, SyncAuthProvider, SyncConflict, SyncData,
+    SyncDataProvider, SyncResource, SyncResult, SyncState,
 };

@@ -61,10 +61,7 @@ impl FoldingRangeService {
 }
 
 /// Requests folding ranges for a file.
-pub async fn provide_folding_ranges(
-    client: &LspClient,
-    uri: &str,
-) -> Result<Vec<FoldingRange>> {
+pub async fn provide_folding_ranges(client: &LspClient, uri: &str) -> Result<Vec<FoldingRange>> {
     let params = FoldingRangeParams {
         text_document: TextDocumentIdentifier::new(Uri::from_str(uri).context("invalid URI")?),
         work_done_progress_params: WorkDoneProgressParams::default(),

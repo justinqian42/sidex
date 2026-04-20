@@ -57,7 +57,9 @@ pub struct LspStartArgs {
 
 #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
 #[tauri::command]
-pub fn lsp_get_server_registry(state: State<'_, Arc<LspState>>) -> Result<Vec<LspServerInfo>, String> {
+pub fn lsp_get_server_registry(
+    state: State<'_, Arc<LspState>>,
+) -> Result<Vec<LspServerInfo>, String> {
     let reg = &state.registry;
     let mut seen = HashMap::<String, usize>::new();
     let mut servers: Vec<LspServerInfo> = Vec::new();

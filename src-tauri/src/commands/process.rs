@@ -364,7 +364,11 @@ impl ProcessStore {
 
         let output = terminal.output.lock().map_err(|e| e.to_string())?;
         let lines = output.get_lines(Some(DEFAULT_RING_BUFFER_CAPACITY));
-        Ok(lines.into_iter().map(|l| l.text).collect::<Vec<_>>().join("\n"))
+        Ok(lines
+            .into_iter()
+            .map(|l| l.text)
+            .collect::<Vec<_>>()
+            .join("\n"))
     }
 }
 

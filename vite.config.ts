@@ -2,11 +2,29 @@ import { defineConfig } from 'vite';
 import * as path from 'path';
 import { nlsPlugin } from './scripts/vite-plugin-nls';
 
+function quietMissingSourceMaps() {
+  const skip = [/\/vscode-textmate\/.*\.js\.map$/];
+  return {
+    name: 'sidex-quiet-missing-source-maps',
+    configureServer(server: import('vite').ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? '';
+        if (skip.some((re) => re.test(url))) {
+          res.statusCode = 204;
+          res.end();
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   clearScreen: false,
   assetsInclude: ['**/*.wasm', '**/*.json', '**/*.tmLanguage.json'],
   publicDir: 'public',
-  plugins: [nlsPlugin()],
+  plugins: [nlsPlugin(), quietMissingSourceMaps()],
   server: {
     port: 1420,
     strictPort: true,

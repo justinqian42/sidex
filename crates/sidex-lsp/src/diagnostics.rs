@@ -104,16 +104,16 @@ impl DiagnosticCounts {
 
 /// Checks whether a diagnostic has the `Unnecessary` tag (render faded).
 pub fn is_unnecessary(diag: &Diagnostic) -> bool {
-    diag.tags
-        .as_ref()
-        .map_or(false, |tags| tags.contains(&lsp_types::DiagnosticTag::UNNECESSARY))
+    diag.tags.as_ref().map_or(false, |tags| {
+        tags.contains(&lsp_types::DiagnosticTag::UNNECESSARY)
+    })
 }
 
 /// Checks whether a diagnostic has the `Deprecated` tag (render strikethrough).
 pub fn is_deprecated(diag: &Diagnostic) -> bool {
-    diag.tags
-        .as_ref()
-        .map_or(false, |tags| tags.contains(&lsp_types::DiagnosticTag::DEPRECATED))
+    diag.tags.as_ref().map_or(false, |tags| {
+        tags.contains(&lsp_types::DiagnosticTag::DEPRECATED)
+    })
 }
 
 // ── DiagnosticKey ───────────────────────────────────────────────────────────
@@ -264,8 +264,8 @@ impl DiagnosticManager {
         self.files
             .iter()
             .map(|(uri, v)| {
-                let path = crate::workspace_edit::uri_to_path(uri)
-                    .unwrap_or_else(|| PathBuf::from(uri));
+                let path =
+                    crate::workspace_edit::uri_to_path(uri).unwrap_or_else(|| PathBuf::from(uri));
                 (path, v.diagnostics.iter().collect())
             })
             .collect()
@@ -300,12 +300,7 @@ impl DiagnosticManager {
     }
 
     /// Returns the diagnostic at a position within a file (for hover).
-    pub fn diagnostic_at(
-        &self,
-        uri: &str,
-        line: u32,
-        character: u32,
-    ) -> Option<&Diagnostic> {
+    pub fn diagnostic_at(&self, uri: &str, line: u32, character: u32) -> Option<&Diagnostic> {
         self.get_diagnostics(uri)
             .iter()
             .filter(|d| {

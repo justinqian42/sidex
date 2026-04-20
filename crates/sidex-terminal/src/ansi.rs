@@ -26,8 +26,14 @@ pub enum OscCommand {
     SetIconName(String),
     SetTitleAndIcon(String),
     SetClipboard(String),
-    SetHyperlink { uri: Option<String>, id: Option<String> },
-    SetColor { index: u8, color: String },
+    SetHyperlink {
+        uri: Option<String>,
+        id: Option<String>,
+    },
+    SetColor {
+        index: u8,
+        color: String,
+    },
     ResetColor(u8),
     SetForeground(String),
     SetBackground(String),
@@ -57,10 +63,7 @@ pub enum AnsiAction {
         action: char,
     },
     /// A DCS (Device Control String) dispatch.
-    DcsDispatch {
-        params: Vec<u16>,
-        data: Vec<u8>,
-    },
+    DcsDispatch { params: Vec<u16>, data: Vec<u8> },
 }
 
 /// A standalone ANSI escape sequence parser.
@@ -268,7 +271,10 @@ impl AnsiParser {
     fn csi_param(&mut self, byte: u8) -> Option<AnsiAction> {
         match byte {
             b'0'..=b'9' => {
-                self.current_param = self.current_param.saturating_mul(10).saturating_add(u16::from(byte - b'0'));
+                self.current_param = self
+                    .current_param
+                    .saturating_mul(10)
+                    .saturating_add(u16::from(byte - b'0'));
                 self.has_param = true;
                 None
             }
@@ -376,7 +382,10 @@ impl AnsiParser {
     fn dcs_param(&mut self, byte: u8) -> Option<AnsiAction> {
         match byte {
             b'0'..=b'9' => {
-                self.current_param = self.current_param.saturating_mul(10).saturating_add(u16::from(byte - b'0'));
+                self.current_param = self
+                    .current_param
+                    .saturating_mul(10)
+                    .saturating_add(u16::from(byte - b'0'));
                 self.has_param = true;
                 None
             }
@@ -428,7 +437,11 @@ fn parse_osc(buffer: &str) -> OscCommand {
                 .split(':')
                 .find_map(|p| p.strip_prefix("id="))
                 .map(String::from);
-            let uri = if uri_str.is_empty() { None } else { Some(uri_str.to_string()) };
+            let uri = if uri_str.is_empty() {
+                None
+            } else {
+                Some(uri_str.to_string())
+            };
             OscCommand::SetHyperlink { uri, id }
         }
         "10" => OscCommand::SetForeground(payload.to_string()),
@@ -442,7 +455,10 @@ fn parse_osc(buffer: &str) -> OscCommand {
                     if payload.is_empty() || payload == "?" {
                         return OscCommand::ResetColor(idx);
                     }
-                    return OscCommand::SetColor { index: idx, color: payload.to_string() };
+                    return OscCommand::SetColor {
+                        index: idx,
+                        color: payload.to_string(),
+                    };
                 }
             }
             let all: Vec<String> = buffer.split(';').map(String::from).collect();
@@ -470,7 +486,11 @@ mod tests {
         let actions = parser.feed(b"\x1b[3A");
         assert_eq!(actions.len(), 1);
         match &actions[0] {
-            AnsiAction::CsiDispatch { params, intermediates, action } => {
+            AnsiAction::CsiDispatch {
+                params,
+                intermediates,
+                action,
+            } => {
                 assert_eq!(params, &[3]);
                 assert!(intermediates.is_empty());
                 assert_eq!(*action, 'A');
@@ -495,7 +515,12 @@ mod tests {
         let mut parser = AnsiParser::new();
         let actions = parser.feed(b"\x1b[?25l");
         assert_eq!(actions.len(), 1);
-        if let AnsiAction::CsiDispatch { params, intermediates, action } = &actions[0] {
+        if let AnsiAction::CsiDispatch {
+            params,
+            intermediates,
+            action,
+        } = &actions[0]
+        {
             assert_eq!(params, &[25]);
             assert_eq!(intermediates, &[b'?']);
             assert_eq!(*action, 'l');

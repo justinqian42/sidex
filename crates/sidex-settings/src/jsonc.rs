@@ -6,7 +6,11 @@ use serde_json::Value;
 use std::fmt;
 
 #[derive(Debug, Clone)]
-pub struct JsoncError { pub line: u32, pub column: u32, pub message: String }
+pub struct JsoncError {
+    pub line: u32,
+    pub column: u32,
+    pub message: String,
+}
 
 impl fmt::Display for JsoncError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -16,10 +20,17 @@ impl fmt::Display for JsoncError {
 impl std::error::Error for JsoncError {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CommentKind { Line, Block }
+pub enum CommentKind {
+    Line,
+    Block,
+}
 
 #[derive(Debug, Clone)]
-pub struct JsoncComment { pub line: u32, pub text: String, pub kind: CommentKind }
+pub struct JsoncComment {
+    pub line: u32,
+    pub text: String,
+    pub kind: CommentKind,
+}
 
 /// Parse a JSONC string into a `serde_json::Value`.
 pub fn parse_jsonc(input: &str) -> Result<Value> {
@@ -39,22 +50,40 @@ pub fn strip_comments(input: &str) -> String {
     let (len, mut out, mut i) = (b.len(), String::with_capacity(b.len()), 0);
     while i < len {
         match b[i] {
-            b'"' => { out.push('"'); i += 1; i = skip_string(b, i, &mut out); }
+            b'"' => {
+                out.push('"');
+                i += 1;
+                i = skip_string(b, i, &mut out);
+            }
             b'/' if i + 1 < len && b[i + 1] == b'/' => {
                 i += 2;
-                while i < len && b[i] != b'\n' { out.push(' '); i += 1; }
-            }
-            b'/' if i + 1 < len && b[i + 1] == b'*' => {
-                i += 2; let mut depth: u32 = 1;
-                while i < len && depth > 0 {
-                    if i + 1 < len && b[i] == b'/' && b[i + 1] == b'*' {
-                        depth += 1; out.push_str("  "); i += 2;
-                    } else if i + 1 < len && b[i] == b'*' && b[i + 1] == b'/' {
-                        depth -= 1; out.push_str("  "); i += 2;
-                    } else { out.push(if b[i] == b'\n' { '\n' } else { ' ' }); i += 1; }
+                while i < len && b[i] != b'\n' {
+                    out.push(' ');
+                    i += 1;
                 }
             }
-            _ => { out.push(b[i] as char); i += 1; }
+            b'/' if i + 1 < len && b[i + 1] == b'*' => {
+                i += 2;
+                let mut depth: u32 = 1;
+                while i < len && depth > 0 {
+                    if i + 1 < len && b[i] == b'/' && b[i + 1] == b'*' {
+                        depth += 1;
+                        out.push_str("  ");
+                        i += 2;
+                    } else if i + 1 < len && b[i] == b'*' && b[i + 1] == b'/' {
+                        depth -= 1;
+                        out.push_str("  ");
+                        i += 2;
+                    } else {
+                        out.push(if b[i] == b'\n' { '\n' } else { ' ' });
+                        i += 1;
+                    }
+                }
+            }
+            _ => {
+                out.push(b[i] as char);
+                i += 1;
+            }
         }
     }
     out
@@ -67,18 +96,23 @@ pub fn format_jsonc(value: &Value, indent: u32) -> String {
 
 /// Edit a value at the given key path inside a JSONC document, preserving formatting/comments.
 pub fn modify_jsonc(input: &str, path: &[&str], value: &Value) -> Result<String> {
-    if path.is_empty() { return Ok(format_jsonc(value, 2)); }
+    if path.is_empty() {
+        return Ok(format_jsonc(value, 2));
+    }
     let mut root = parse_jsonc(input)?;
     let mut target = &mut root;
     for (i, key) in path.iter().enumerate() {
         if i == path.len() - 1 {
             match target {
-                Value::Object(m) => { m.insert((*key).to_string(), value.clone()); }
+                Value::Object(m) => {
+                    m.insert((*key).to_string(), value.clone());
+                }
                 _ => anyhow::bail!("path element '{}' is not an object", key),
             }
         } else {
             target = match target {
-                Value::Object(m) => m.entry((*key).to_string())
+                Value::Object(m) => m
+                    .entry((*key).to_string())
                     .or_insert_with(|| Value::Object(serde_json::Map::new())),
                 _ => anyhow::bail!("path element '{}' is not an object", key),
             };
@@ -90,7 +124,9 @@ pub fn modify_jsonc(input: &str, path: &[&str], value: &Value) -> Result<String>
         let (vs, ve) = value_span(input, colon + 1);
         let ser = serde_json::to_string(value).unwrap();
         let mut r = String::with_capacity(input.len() + ser.len());
-        r.push_str(&input[..vs]); r.push_str(&ser); r.push_str(&input[ve..]);
+        r.push_str(&input[..vs]);
+        r.push_str(&ser);
+        r.push_str(&input[ve..]);
         Ok(r)
     } else {
         Ok(format_jsonc(&root, 2))
@@ -102,9 +138,17 @@ pub fn modify_jsonc(input: &str, path: &[&str], value: &Value) -> Result<String>
 fn skip_string(b: &[u8], mut i: usize, out: &mut String) -> usize {
     while i < b.len() {
         if b[i] == b'\\' && i + 1 < b.len() {
-            out.push(b[i] as char); out.push(b[i + 1] as char); i += 2;
-        } else if b[i] == b'"' { out.push('"'); i += 1; break; }
-        else { out.push(b[i] as char); i += 1; }
+            out.push(b[i] as char);
+            out.push(b[i + 1] as char);
+            i += 2;
+        } else if b[i] == b'"' {
+            out.push('"');
+            i += 1;
+            break;
+        } else {
+            out.push(b[i] as char);
+            i += 1;
+        }
     }
     i
 }
@@ -114,15 +158,27 @@ fn fmt_val(v: &Value, ind: &str, d: usize) -> String {
         Value::Object(m) if m.is_empty() => "{}".into(),
         Value::Array(a) if a.is_empty() => "[]".into(),
         Value::Object(m) => {
-            let ip = ind.repeat(d + 1); let op = ind.repeat(d);
-            let e: Vec<String> = m.iter()
-                .map(|(k, v)| format!("{ip}{}: {}", serde_json::to_string(k).unwrap(), fmt_val(v, ind, d + 1)))
+            let ip = ind.repeat(d + 1);
+            let op = ind.repeat(d);
+            let e: Vec<String> = m
+                .iter()
+                .map(|(k, v)| {
+                    format!(
+                        "{ip}{}: {}",
+                        serde_json::to_string(k).unwrap(),
+                        fmt_val(v, ind, d + 1)
+                    )
+                })
                 .collect();
             format!("{{\n{}\n{op}}}", e.join(",\n"))
         }
         Value::Array(a) => {
-            let ip = ind.repeat(d + 1); let op = ind.repeat(d);
-            let e: Vec<String> = a.iter().map(|v| format!("{ip}{}", fmt_val(v, ind, d + 1))).collect();
+            let ip = ind.repeat(d + 1);
+            let op = ind.repeat(d);
+            let e: Vec<String> = a
+                .iter()
+                .map(|v| format!("{ip}{}", fmt_val(v, ind, d + 1)))
+                .collect();
             format!("[\n{}\n{op}]", e.join(",\n"))
         }
         _ => serde_json::to_string(v).unwrap(),
@@ -135,22 +191,39 @@ fn find_key_in_src(input: &str, needle: &str) -> Option<usize> {
     while i < b.len() {
         match b[i] {
             b'"' => {
-                let s = i; i += 1;
+                let s = i;
+                i += 1;
                 while i < b.len() {
-                    if b[i] == b'\\' && i + 1 < b.len() { i += 2; }
-                    else if b[i] == b'"' { i += 1; if &b[s..i] == nb { return Some(s); } break; }
-                    else { i += 1; }
+                    if b[i] == b'\\' && i + 1 < b.len() {
+                        i += 2;
+                    } else if b[i] == b'"' {
+                        i += 1;
+                        if &b[s..i] == nb {
+                            return Some(s);
+                        }
+                        break;
+                    } else {
+                        i += 1;
+                    }
                 }
             }
             b'/' if i + 1 < b.len() && b[i + 1] == b'/' => {
-                while i < b.len() && b[i] != b'\n' { i += 1; }
+                while i < b.len() && b[i] != b'\n' {
+                    i += 1;
+                }
             }
             b'/' if i + 1 < b.len() && b[i + 1] == b'*' => {
                 i += 2;
-                while i + 1 < b.len() && !(b[i] == b'*' && b[i + 1] == b'/') { i += 1; }
-                if i + 1 < b.len() { i += 2; }
+                while i + 1 < b.len() && !(b[i] == b'*' && b[i + 1] == b'/') {
+                    i += 1;
+                }
+                if i + 1 < b.len() {
+                    i += 2;
+                }
             }
-            _ => { i += 1; }
+            _ => {
+                i += 1;
+            }
         }
     }
     None
@@ -159,26 +232,42 @@ fn find_key_in_src(input: &str, needle: &str) -> Option<usize> {
 fn value_span(input: &str, after: usize) -> (usize, usize) {
     let b = input.as_bytes();
     let mut i = after;
-    while i < b.len() && b[i].is_ascii_whitespace() { i += 1; }
+    while i < b.len() && b[i].is_ascii_whitespace() {
+        i += 1;
+    }
     let s = i;
     match b.get(i) {
         Some(b'"') => {
             i += 1;
             while i < b.len() {
-                if b[i] == b'\\' && i + 1 < b.len() { i += 2; }
-                else if b[i] == b'"' { return (s, i + 1); }
-                else { i += 1; }
+                if b[i] == b'\\' && i + 1 < b.len() {
+                    i += 2;
+                } else if b[i] == b'"' {
+                    return (s, i + 1);
+                } else {
+                    i += 1;
+                }
             }
         }
         Some(&c @ b'{') | Some(&c @ b'[') => {
             let cl = if c == b'{' { b'}' } else { b']' };
-            let mut d = 1; i += 1;
+            let mut d = 1;
+            i += 1;
             while i < b.len() && d > 0 {
-                if b[i] == c { d += 1; } else if b[i] == cl { d -= 1; }
-                else if b[i] == b'"' { i += 1;
+                if b[i] == c {
+                    d += 1;
+                } else if b[i] == cl {
+                    d -= 1;
+                } else if b[i] == b'"' {
+                    i += 1;
                     while i < b.len() {
-                        if b[i] == b'\\' && i + 1 < b.len() { i += 2; }
-                        else if b[i] == b'"' { break; } else { i += 1; }
+                        if b[i] == b'\\' && i + 1 < b.len() {
+                            i += 2;
+                        } else if b[i] == b'"' {
+                            break;
+                        } else {
+                            i += 1;
+                        }
                     }
                 }
                 i += 1;
@@ -186,7 +275,9 @@ fn value_span(input: &str, after: usize) -> (usize, usize) {
             return (s, i);
         }
         _ => {
-            while i < b.len() && !matches!(b[i], b',' | b'}' | b']' | b'\n') { i += 1; }
+            while i < b.len() && !matches!(b[i], b',' | b'}' | b']' | b'\n') {
+                i += 1;
+            }
             return (s, input[s..i].trim_end().len() + s);
         }
     }
@@ -198,33 +289,69 @@ fn extract_comments(input: &str) -> Vec<JsoncComment> {
     let (len, mut comments, mut i, mut line) = (b.len(), Vec::new(), 0, 1u32);
     while i < len {
         match b[i] {
-            b'\n' => { line += 1; i += 1; }
-            b'"' => { i += 1;
+            b'\n' => {
+                line += 1;
+                i += 1;
+            }
+            b'"' => {
+                i += 1;
                 while i < len {
-                    if b[i] == b'\\' && i + 1 < len { i += 2; }
-                    else if b[i] == b'"' { i += 1; break; }
-                    else { if b[i] == b'\n' { line += 1; } i += 1; }
+                    if b[i] == b'\\' && i + 1 < len {
+                        i += 2;
+                    } else if b[i] == b'"' {
+                        i += 1;
+                        break;
+                    } else {
+                        if b[i] == b'\n' {
+                            line += 1;
+                        }
+                        i += 1;
+                    }
                 }
             }
             b'/' if i + 1 < len && b[i + 1] == b'/' => {
-                let sl = line; i += 2; let ts = i;
-                while i < len && b[i] != b'\n' { i += 1; }
-                comments.push(JsoncComment { line: sl, text: input[ts..i].trim().into(), kind: CommentKind::Line });
+                let sl = line;
+                i += 2;
+                let ts = i;
+                while i < len && b[i] != b'\n' {
+                    i += 1;
+                }
+                comments.push(JsoncComment {
+                    line: sl,
+                    text: input[ts..i].trim().into(),
+                    kind: CommentKind::Line,
+                });
             }
             b'/' if i + 1 < len && b[i + 1] == b'*' => {
-                let sl = line; i += 2; let ts = i; let mut depth: u32 = 1;
+                let sl = line;
+                i += 2;
+                let ts = i;
+                let mut depth: u32 = 1;
                 while i < len && depth > 0 {
-                    if i + 1 < len && b[i] == b'/' && b[i + 1] == b'*' { depth += 1; i += 2; }
-                    else if i + 1 < len && b[i] == b'*' && b[i + 1] == b'/' {
+                    if i + 1 < len && b[i] == b'/' && b[i + 1] == b'*' {
+                        depth += 1;
+                        i += 2;
+                    } else if i + 1 < len && b[i] == b'*' && b[i + 1] == b'/' {
                         depth -= 1;
                         if depth == 0 {
-                            comments.push(JsoncComment { line: sl, text: input[ts..i].trim().into(), kind: CommentKind::Block });
+                            comments.push(JsoncComment {
+                                line: sl,
+                                text: input[ts..i].trim().into(),
+                                kind: CommentKind::Block,
+                            });
                         }
                         i += 2;
-                    } else { if b[i] == b'\n' { line += 1; } i += 1; }
+                    } else {
+                        if b[i] == b'\n' {
+                            line += 1;
+                        }
+                        i += 1;
+                    }
                 }
             }
-            _ => { i += 1; }
+            _ => {
+                i += 1;
+            }
         }
     }
     comments
@@ -235,13 +362,24 @@ fn remove_trailing_commas(input: &str) -> String {
     let (len, mut out, mut i) = (b.len(), String::with_capacity(b.len()), 0);
     while i < len {
         if b[i] == b'"' {
-            out.push('"'); i += 1; i = skip_string(b, i, &mut out);
+            out.push('"');
+            i += 1;
+            i = skip_string(b, i, &mut out);
         } else if b[i] == b',' {
             let mut j = i + 1;
-            while j < len && matches!(b[j], b' ' | b'\t' | b'\n' | b'\r') { j += 1; }
-            if j < len && matches!(b[j], b']' | b'}') { i += 1; }
-            else { out.push(','); i += 1; }
-        } else { out.push(b[i] as char); i += 1; }
+            while j < len && matches!(b[j], b' ' | b'\t' | b'\n' | b'\r') {
+                j += 1;
+            }
+            if j < len && matches!(b[j], b']' | b'}') {
+                i += 1;
+            } else {
+                out.push(',');
+                i += 1;
+            }
+        } else {
+            out.push(b[i] as char);
+            i += 1;
+        }
     }
     out
 }
@@ -292,6 +430,9 @@ mod tests {
     }
     #[test]
     fn nested_block_comments() {
-        assert_eq!(parse_jsonc("{\n /* o /* i */ s */\n \"a\":1\n}").unwrap()["a"], 1);
+        assert_eq!(
+            parse_jsonc("{\n /* o /* i */ s */\n \"a\":1\n}").unwrap()["a"],
+            1
+        );
     }
 }

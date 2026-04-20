@@ -217,12 +217,21 @@ fn find_url_end(text: &str, start: usize) -> usize {
         let b = bytes[i];
         match b {
             b' ' | b'\t' | b'"' | b'\'' | b'<' | b'>' | b'`' => break,
-            b'(' => { paren_depth += 1; i += 1; }
-            b')' => {
-                if paren_depth > 0 { paren_depth -= 1; i += 1; }
-                else { break; }
+            b'(' => {
+                paren_depth += 1;
+                i += 1;
             }
-            _ => { i += 1; }
+            b')' => {
+                if paren_depth > 0 {
+                    paren_depth -= 1;
+                    i += 1;
+                } else {
+                    break;
+                }
+            }
+            _ => {
+                i += 1;
+            }
         }
     }
     while i > start && matches!(bytes[i - 1], b'.' | b',' | b';' | b':' | b'!' | b'?') {
@@ -241,7 +250,8 @@ fn detect_absolute_paths(text: &str, row: u16, links: &mut Vec<TerminalLink>) {
     while search_from < text.len() {
         let remaining = &text[search_from..];
         let start = if cfg!(target_os = "windows") {
-            remaining.find(|c: char| c.is_ascii_alphabetic())
+            remaining
+                .find(|c: char| c.is_ascii_alphabetic())
                 .and_then(|i| {
                     if remaining.get(i + 1..i + 3) == Some(":\\") {
                         Some(i)
@@ -250,13 +260,14 @@ fn detect_absolute_paths(text: &str, row: u16, links: &mut Vec<TerminalLink>) {
                     }
                 })
         } else {
-            remaining.find('/')
-                .filter(|&i| {
-                    i == 0 || !remaining.as_bytes()[i - 1].is_ascii_alphanumeric()
-                })
+            remaining
+                .find('/')
+                .filter(|&i| i == 0 || !remaining.as_bytes()[i - 1].is_ascii_alphanumeric())
         };
 
-        let Some(rel_start) = start else { break; };
+        let Some(rel_start) = start else {
+            break;
+        };
         let abs_start = search_from + rel_start;
         let path_end = find_path_end(text, abs_start);
         let path_str = &text[abs_start..path_end];
@@ -319,7 +330,9 @@ fn find_path_end(text: &str, start: usize) -> usize {
                 }
                 i += 1;
             }
-            _ => { i += 1; }
+            _ => {
+                i += 1;
+            }
         }
     }
     while i > start && matches!(bytes[i - 1], b'.' | b',' | b')' | b']') {
@@ -330,17 +343,19 @@ fn find_path_end(text: &str, start: usize) -> usize {
 
 fn looks_like_file_path(p: &Path) -> bool {
     let s = p.to_string_lossy();
-    if s.len() <= 1 { return false; }
-    if s.contains('\0') { return false; }
+    if s.len() <= 1 {
+        return false;
+    }
+    if s.contains('\0') {
+        return false;
+    }
     let has_ext = p.extension().is_some();
     let has_sep = s.contains('/') || s.contains('\\');
     has_ext || has_sep
 }
 
 fn dedup_overlapping(links: &mut Vec<TerminalLink>) {
-    links.dedup_by(|b, a| {
-        a.start <= b.start && a.end >= b.end
-    });
+    links.dedup_by(|b, a| a.start <= b.start && a.end >= b.end);
 }
 
 #[cfg(test)]
@@ -348,7 +363,12 @@ mod tests {
     use super::*;
 
     fn cells_from_str(s: &str) -> Vec<Cell> {
-        s.chars().map(|c| Cell { c, ..Cell::default() }).collect()
+        s.chars()
+            .map(|c| Cell {
+                c,
+                ..Cell::default()
+            })
+            .collect()
     }
 
     #[test]
@@ -372,7 +392,10 @@ mod tests {
     fn detect_absolute_path_unix() {
         let cells = cells_from_str("Error in /usr/local/bin/app.rs");
         let links = detect_links(&cells);
-        let path_links: Vec<_> = links.iter().filter(|l| l.kind == LinkKind::FilePath).collect();
+        let path_links: Vec<_> = links
+            .iter()
+            .filter(|l| l.kind == LinkKind::FilePath)
+            .collect();
         assert!(!path_links.is_empty());
         assert!(path_links[0].url.starts_with("/usr/local/bin/app.rs"));
     }
@@ -381,7 +404,10 @@ mod tests {
     fn detect_relative_path() {
         let cells = cells_from_str("Error in ./src/main.rs");
         let links = detect_links(&cells);
-        let path_links: Vec<_> = links.iter().filter(|l| l.kind == LinkKind::FilePath).collect();
+        let path_links: Vec<_> = links
+            .iter()
+            .filter(|l| l.kind == LinkKind::FilePath)
+            .collect();
         assert!(!path_links.is_empty());
         assert_eq!(path_links[0].url, "./src/main.rs");
     }
@@ -395,11 +421,14 @@ mod tests {
 
     #[test]
     fn osc8_hyperlink() {
-        let cells: Vec<Cell> = "click".chars().map(|c| Cell {
-            c,
-            hyperlink: Some("https://example.com".to_string()),
-            ..Cell::default()
-        }).collect();
+        let cells: Vec<Cell> = "click"
+            .chars()
+            .map(|c| Cell {
+                c,
+                hyperlink: Some("https://example.com".to_string()),
+                ..Cell::default()
+            })
+            .collect();
         let links = detect_links(&cells);
         assert!(!links.is_empty());
         assert_eq!(links[0].url, "https://example.com");

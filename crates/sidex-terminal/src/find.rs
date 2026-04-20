@@ -25,7 +25,11 @@ pub struct FindOptions {
 
 impl Default for FindOptions {
     fn default() -> Self {
-        Self { case_sensitive: false, regex: false, whole_word: false }
+        Self {
+            case_sensitive: false,
+            regex: false,
+            whole_word: false,
+        }
     }
 }
 
@@ -43,14 +47,21 @@ pub struct TerminalFind {
 impl Default for TerminalFind {
     fn default() -> Self {
         Self {
-            visible: false, query: String::new(), matches: Vec::new(),
-            current_match: 0, case_sensitive: false, regex: false, whole_word: false,
+            visible: false,
+            query: String::new(),
+            matches: Vec::new(),
+            current_match: 0,
+            case_sensitive: false,
+            regex: false,
+            whole_word: false,
         }
     }
 }
 
 impl TerminalFind {
-    pub fn open(&mut self) { self.visible = true; }
+    pub fn open(&mut self) {
+        self.visible = true;
+    }
 
     pub fn close(&mut self) {
         self.visible = false;
@@ -59,7 +70,11 @@ impl TerminalFind {
     }
 
     pub fn options(&self) -> FindOptions {
-        FindOptions { case_sensitive: self.case_sensitive, regex: self.regex, whole_word: self.whole_word }
+        FindOptions {
+            case_sensitive: self.case_sensitive,
+            regex: self.regex,
+            whole_word: self.whole_word,
+        }
     }
 
     /// Run the search against `grid`, replacing previous results.
@@ -82,15 +97,20 @@ impl TerminalFind {
     /// Navigate to the previous match (Shift+Enter).
     pub fn previous_match(&mut self) {
         if !self.matches.is_empty() {
-            self.current_match = self.current_match.checked_sub(1)
+            self.current_match = self
+                .current_match
+                .checked_sub(1)
                 .unwrap_or(self.matches.len() - 1);
         }
     }
 
     /// Format the match counter, e.g. "3 of 12".
     pub fn match_status(&self) -> String {
-        if self.matches.is_empty() { "No results".into() }
-        else { format!("{} of {}", self.current_match + 1, self.matches.len()) }
+        if self.matches.is_empty() {
+            "No results".into()
+        } else {
+            format!("{} of {}", self.current_match + 1, self.matches.len())
+        }
     }
 
     /// Returns `true` if the given cell falls inside any match.
@@ -98,13 +118,19 @@ impl TerminalFind {
         self.matches.iter().any(|m| {
             if m.start_row == m.end_row {
                 row == m.start_row && col >= m.start_col && col <= m.end_col
-            } else if row == m.start_row { col >= m.start_col }
-            else if row == m.end_row { col <= m.end_col }
-            else { row > m.start_row && row < m.end_row }
+            } else if row == m.start_row {
+                col >= m.start_col
+            } else if row == m.end_row {
+                col <= m.end_col
+            } else {
+                row > m.start_row && row < m.end_row
+            }
         })
     }
 
-    pub fn current(&self) -> Option<&TerminalMatch> { self.matches.get(self.current_match) }
+    pub fn current(&self) -> Option<&TerminalMatch> {
+        self.matches.get(self.current_match)
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -116,8 +142,14 @@ fn line_text(cells: &[Cell]) -> String {
 }
 
 /// Search the terminal grid (scrollback + visible) for `query`.
-pub fn find_in_terminal(grid: &TerminalGrid, query: &str, options: &FindOptions) -> Vec<TerminalMatch> {
-    if query.is_empty() { return Vec::new(); }
+pub fn find_in_terminal(
+    grid: &TerminalGrid,
+    query: &str,
+    options: &FindOptions,
+) -> Vec<TerminalMatch> {
+    if query.is_empty() {
+        return Vec::new();
+    }
     let re = match build_pattern(query, options) {
         Some(r) => r,
         None => return Vec::new(),
@@ -126,19 +158,41 @@ pub fn find_in_terminal(grid: &TerminalGrid, query: &str, options: &FindOptions)
     let mut results = Vec::new();
     for i in 0..sb_len {
         if let Some(cells) = grid.scrollback.get(i) {
-            collect(&re, &line_text(cells), -(sb_len as i32) + i as i32, &mut results);
+            collect(
+                &re,
+                &line_text(cells),
+                -(sb_len as i32) + i as i32,
+                &mut results,
+            );
         }
     }
     for row in 0..grid.rows() {
-        collect(&re, &line_text(&grid.cells()[row as usize]), row as i32, &mut results);
+        collect(
+            &re,
+            &line_text(&grid.cells()[row as usize]),
+            row as i32,
+            &mut results,
+        );
     }
     results
 }
 
 fn build_pattern(query: &str, opts: &FindOptions) -> Option<Regex> {
-    let pat = if opts.regex { query.to_string() } else { regex::escape(query) };
-    let pat = if opts.whole_word { format!(r"\b{pat}\b") } else { pat };
-    let pat = if opts.case_sensitive { pat } else { format!("(?i){pat}") };
+    let pat = if opts.regex {
+        query.to_string()
+    } else {
+        regex::escape(query)
+    };
+    let pat = if opts.whole_word {
+        format!(r"\b{pat}\b")
+    } else {
+        pat
+    };
+    let pat = if opts.case_sensitive {
+        pat
+    } else {
+        format!("(?i){pat}")
+    };
     Regex::new(&pat).ok()
 }
 
@@ -146,8 +200,10 @@ fn collect(re: &Regex, text: &str, row: i32, out: &mut Vec<TerminalMatch>) {
     for m in re.find_iter(text) {
         #[allow(clippy::cast_possible_truncation)]
         out.push(TerminalMatch {
-            start_row: row, start_col: m.start() as u16,
-            end_row: row, end_col: m.end().saturating_sub(1) as u16,
+            start_row: row,
+            start_col: m.start() as u16,
+            end_row: row,
+            end_col: m.end().saturating_sub(1) as u16,
         });
     }
 }
@@ -175,20 +231,39 @@ mod tests {
         assert_eq!(m.len(), 2);
         assert_eq!((m[0].start_col, m[0].end_col), (0, 4));
         let g2 = grid_with(&["Hello HELLO hello"]);
-        assert_eq!(find_in_terminal(&g2, "hello", &FindOptions::default()).len(), 3);
-        let cs = FindOptions { case_sensitive: true, ..Default::default() };
+        assert_eq!(
+            find_in_terminal(&g2, "hello", &FindOptions::default()).len(),
+            3
+        );
+        let cs = FindOptions {
+            case_sensitive: true,
+            ..Default::default()
+        };
         assert_eq!(find_in_terminal(&g2, "hello", &cs).len(), 1);
     }
 
     #[test]
     fn whole_word_and_counter() {
         let g = grid_with(&["cat catfish concatenate"]);
-        let ww = FindOptions { whole_word: true, ..Default::default() };
+        let ww = FindOptions {
+            whole_word: true,
+            ..Default::default()
+        };
         assert_eq!(find_in_terminal(&g, "cat", &ww).len(), 1);
         let mut f = TerminalFind::default();
         assert_eq!(f.match_status(), "No results");
-        f.matches.push(TerminalMatch { start_row: 0, start_col: 0, end_row: 0, end_col: 4 });
-        f.matches.push(TerminalMatch { start_row: 1, start_col: 0, end_row: 1, end_col: 4 });
+        f.matches.push(TerminalMatch {
+            start_row: 0,
+            start_col: 0,
+            end_row: 0,
+            end_col: 4,
+        });
+        f.matches.push(TerminalMatch {
+            start_row: 1,
+            start_col: 0,
+            end_row: 1,
+            end_col: 4,
+        });
         assert_eq!(f.match_status(), "1 of 2");
         f.next_match();
         assert_eq!(f.match_status(), "2 of 2");

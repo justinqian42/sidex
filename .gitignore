@@ -88,7 +88,11 @@ extensions-rust/php-language-extension/
 extensions-rust/references-view-extension/
 extensions-rust/terminal-suggest-extension/
 
-# ── Generated CSS spec data (can be regenerated from vscode-fork) ────────────
+# ── Cloudflare Wrangler (marketplace-proxy dev state) ────────────────────────
+infrastructure/marketplace-proxy/.wrangler/
+infrastructure/marketplace-proxy/node_modules/
+
+
 extensions-rust/css-language-extension/css-data.json
 extensions-rust/css-language-extension/css-builtin.json
 extensions-rust/css-language-extension/src/css_data.rs

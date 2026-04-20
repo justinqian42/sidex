@@ -418,10 +418,34 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         bind_when(psa, Key::PageUp, "cursorColumnSelectPageUp", etf),
         bind_when(psa, Key::PageDown, "cursorColumnSelectPageDown", etf),
         // ── Move editor ───────────────────────────────────────────────────
-        chord(p, Key::K, s, Key::ArrowLeft, "workbench.action.moveActiveEditorGroupLeft"),
-        chord(p, Key::K, s, Key::ArrowRight, "workbench.action.moveActiveEditorGroupRight"),
-        chord(p, Key::K, s, Key::ArrowUp, "workbench.action.moveActiveEditorGroupUp"),
-        chord(p, Key::K, s, Key::ArrowDown, "workbench.action.moveActiveEditorGroupDown"),
+        chord(
+            p,
+            Key::K,
+            s,
+            Key::ArrowLeft,
+            "workbench.action.moveActiveEditorGroupLeft",
+        ),
+        chord(
+            p,
+            Key::K,
+            s,
+            Key::ArrowRight,
+            "workbench.action.moveActiveEditorGroupRight",
+        ),
+        chord(
+            p,
+            Key::K,
+            s,
+            Key::ArrowUp,
+            "workbench.action.moveActiveEditorGroupUp",
+        ),
+        chord(
+            p,
+            Key::K,
+            s,
+            Key::ArrowDown,
+            "workbench.action.moveActiveEditorGroupDown",
+        ),
         // ── Selections / multi-cursor extras ──────────────────────────────
         bind_when(ps, Key::L, "editor.action.selectHighlights", etf),
         bind_when(p, Key::F2, "editor.action.changeAll", etf),
@@ -431,8 +455,22 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         bind_when(ps, Key::ArrowRight, "editor.action.smartSelect.expand", etf),
         bind_when(ps, Key::ArrowLeft, "editor.action.smartSelect.shrink", etf),
         // ── Transform text ────────────────────────────────────────────────
-        chord_when(p, Key::K, p, Key::U, "editor.action.transformToUppercase", etf_sel),
-        chord_when(p, Key::K, p, Key::L, "editor.action.transformToLowercase", etf_sel),
+        chord_when(
+            p,
+            Key::K,
+            p,
+            Key::U,
+            "editor.action.transformToUppercase",
+            etf_sel,
+        ),
+        chord_when(
+            p,
+            Key::K,
+            p,
+            Key::L,
+            "editor.action.transformToLowercase",
+            etf_sel,
+        ),
         // ── Toggle line numbers ───────────────────────────────────────────
         chord(p, Key::K, p, Key::N, "editor.action.toggleLineNumbers"),
         // ── Toggle render whitespace ──────────────────────────────────────
@@ -457,12 +495,32 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         // ── Toggle tab size ───────────────────────────────────────────────
         bind_when(p, Key::M, "editor.action.toggleTabFocusMode", etf),
         // ── Emmet ─────────────────────────────────────────────────────────
-        bind_when(n, Key::Tab, "editor.emmet.action.expandAbbreviation", "emmetSuggestActive"),
+        bind_when(
+            n,
+            Key::Tab,
+            "editor.emmet.action.expandAbbreviation",
+            "emmetSuggestActive",
+        ),
         // ── Notebook ──────────────────────────────────────────────────────
-        bind_when(p, Key::Enter, "notebook.cell.execute", "notebookCellFocused"),
-        bind_when(ps, Key::Enter, "notebook.cell.executeAndSelectBelow", "notebookCellFocused"),
+        bind_when(
+            p,
+            Key::Enter,
+            "notebook.cell.execute",
+            "notebookCellFocused",
+        ),
+        bind_when(
+            ps,
+            Key::Enter,
+            "notebook.cell.executeAndSelectBelow",
+            "notebookCellFocused",
+        ),
         // ── Output panel ──────────────────────────────────────────────────
-        bind_when(p, Key::L, "workbench.action.output.clear", "focusedView == 'workbench.panel.output'"),
+        bind_when(
+            p,
+            Key::L,
+            "workbench.action.output.clear",
+            "focusedView == 'workbench.panel.output'",
+        ),
         // ── Problems panel ────────────────────────────────────────────────
         // (already defined above)
         // ── Accessibility ─────────────────────────────────────────────────
@@ -470,10 +528,22 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         chord(p, Key::K, p, Key::H, "workbench.action.toggleHighContrast"),
         // ── SCM / Git ─────────────────────────────────────────────────────
         bind_when(p, Key::Enter, "git.commit", "scmInputIsFocused"),
-        chord(p, Key::K, p, Key::G, "workbench.action.openGlobalKeybindingsFile"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::G,
+            "workbench.action.openGlobalKeybindingsFile",
+        ),
         // ── Workbench: close editors ──────────────────────────────────────
         chord(p, Key::K, p, Key::W, "workbench.action.closeAllEditors"),
-        chord(p, Key::K, p, Key::U, "workbench.action.closeUnmodifiedEditors"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::U,
+            "workbench.action.closeUnmodifiedEditors",
+        ),
         chord(p, Key::K, n, Key::W, "workbench.action.closeEditorsInGroup"),
         bind(ps, Key::W, "workbench.action.closeWindow"),
         // ── Pin / unpin editor ────────────────────────────────────────────
@@ -484,15 +554,39 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         bind(p, Key::Minus, "workbench.action.navigateBack"),
         bind(ps, Key::Minus, "workbench.action.navigateForward"),
         // ── Focus terminal ────────────────────────────────────────────────
-        bind_when(n, Key::Escape, "workbench.action.focusActiveEditorGroup", tf),
-        bind_when(ps, Key::BracketLeft, "workbench.action.terminal.focusPrevious", tf),
-        bind_when(ps, Key::BracketRight, "workbench.action.terminal.focusNext", tf),
+        bind_when(
+            n,
+            Key::Escape,
+            "workbench.action.focusActiveEditorGroup",
+            tf,
+        ),
+        bind_when(
+            ps,
+            Key::BracketLeft,
+            "workbench.action.terminal.focusPrevious",
+            tf,
+        ),
+        bind_when(
+            ps,
+            Key::BracketRight,
+            "workbench.action.terminal.focusNext",
+            tf,
+        ),
         // ── Terminal find ─────────────────────────────────────────────────
         bind_when(p, Key::F, "workbench.action.terminal.focusFindWidget", tf),
         // ── Terminal rename ───────────────────────────────────────────────
-        bind_when(n, Key::F2, "workbench.action.terminal.rename", "terminalTabsFocus"),
+        bind_when(
+            n,
+            Key::F2,
+            "workbench.action.terminal.rename",
+            "terminalTabsFocus",
+        ),
         // ── Panel maximize / restore ──────────────────────────────────────
-        bind(ps, Key::BracketRight, "workbench.action.toggleMaximizedPanel"),
+        bind(
+            ps,
+            Key::BracketRight,
+            "workbench.action.toggleMaximizedPanel",
+        ),
         // ── Sidebar sections (new additions) ────────────────────────────
         bind(ps, Key::Y, "workbench.debug.action.toggleRepl"),
         // ── Debug extras ──────────────────────────────────────────────────
@@ -500,11 +594,27 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         bind_when(ps, Key::F11, "workbench.action.debug.stepOut", idm),
         bind_when(n, Key::F10, "workbench.action.debug.stepOver", idm),
         bind_when(n, Key::F11, "workbench.action.debug.stepInto", idm),
-        chord_when(p, Key::K, p, Key::I, "editor.debug.action.showDebugHover", idm),
+        chord_when(
+            p,
+            Key::K,
+            p,
+            Key::I,
+            "editor.debug.action.showDebugHover",
+            idm,
+        ),
         bind(s, Key::F9, "editor.debug.action.toggleInlineBreakpoint"),
-        bind(ps, Key::F9, "editor.debug.action.toggleConditionalBreakpoint"),
+        bind(
+            ps,
+            Key::F9,
+            "editor.debug.action.toggleConditionalBreakpoint",
+        ),
         // ── Debug console ─────────────────────────────────────────────────
-        bind_when(n, Key::ArrowUp, "repl.action.historyPrevious", "inDebugRepl"),
+        bind_when(
+            n,
+            Key::ArrowUp,
+            "repl.action.historyPrevious",
+            "inDebugRepl",
+        ),
         bind_when(n, Key::ArrowDown, "repl.action.historyNext", "inDebugRepl"),
         // ── Search editor ─────────────────────────────────────────────────
         bind(ps, Key::Digit1, "search.action.focusFirstSearchResult"),
@@ -512,26 +622,73 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         bind(ps, Key::B, "workbench.action.tasks.build"),
         chord(p, Key::K, p, Key::T, "workbench.action.tasks.runTask"),
         // ── Source control ────────────────────────────────────────────────
-        bind_when(n, Key::Escape, "workbench.scm.action.discardAllChanges", "scmInputIsFocused"),
+        bind_when(
+            n,
+            Key::Escape,
+            "workbench.scm.action.discardAllChanges",
+            "scmInputIsFocused",
+        ),
         // ── Keybindings editor ────────────────────────────────────────────
-        chord(p, Key::K, ps, Key::S, "workbench.action.openGlobalKeybindings"),
+        chord(
+            p,
+            Key::K,
+            ps,
+            Key::S,
+            "workbench.action.openGlobalKeybindings",
+        ),
         // ── Extensions search ─────────────────────────────────────────────
-        chord(p, Key::K, p, Key::E, "workbench.extensions.action.showRecommendedExtensions"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::E,
+            "workbench.extensions.action.showRecommendedExtensions",
+        ),
         // ── Open recent ───────────────────────────────────────────────────
         bind(p, Key::R, "workbench.action.openRecent"),
         // ── Toggle breadcrumbs ────────────────────────────────────────────
         chord(p, Key::K, p, Key::B, "breadcrumbs.toggleVisibility"),
         // ── Toggle sidebar position ───────────────────────────────────────
-        chord(p, Key::K, p, Key::S, "workbench.action.toggleSidebarPosition"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::S,
+            "workbench.action.toggleSidebarPosition",
+        ),
         // ── Integrated terminal scroll ────────────────────────────────────
-        bind_when(ps, Key::PageUp, "workbench.action.terminal.scrollUpPage", tf),
-        bind_when(ps, Key::PageDown, "workbench.action.terminal.scrollDownPage", tf),
+        bind_when(
+            ps,
+            Key::PageUp,
+            "workbench.action.terminal.scrollUpPage",
+            tf,
+        ),
+        bind_when(
+            ps,
+            Key::PageDown,
+            "workbench.action.terminal.scrollDownPage",
+            tf,
+        ),
         // ── Fold imports ──────────────────────────────────────────────────
-        chord_when(p, Key::K, p, Key::Digit8, "editor.foldAllBlockComments", etf),
+        chord_when(
+            p,
+            Key::K,
+            p,
+            Key::Digit8,
+            "editor.foldAllBlockComments",
+            etf,
+        ),
         // ── Toggle fold ───────────────────────────────────────────────────
         chord_when(p, Key::K, p, Key::L, "editor.toggleFold", etf),
         // ── Peek definition in group ──────────────────────────────────────
-        chord_when(p, Key::K, n, Key::F12, "editor.action.revealDefinitionAside", etf),
+        chord_when(
+            p,
+            Key::K,
+            n,
+            Key::F12,
+            "editor.action.revealDefinitionAside",
+            etf,
+        ),
         // ── Open definition to side ───────────────────────────────────────
         bind_when(pa, Key::F12, "editor.action.openDeclarationToTheSide", etf),
         // ── Focus debug console ───────────────────────────────────────────
@@ -539,34 +696,86 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         // ── Suggest details toggle ────────────────────────────────────────
         bind_when(p, Key::Space, "toggleSuggestionDetails", swv),
         // ── Parameter hints trigger ───────────────────────────────────────
-        bind_when(ps, Key::Space, "editor.action.triggerParameterHints", "editorTextFocus && parameterHintsVisible"),
+        bind_when(
+            ps,
+            Key::Space,
+            "editor.action.triggerParameterHints",
+            "editorTextFocus && parameterHintsVisible",
+        ),
         // ── Inline suggestions ────────────────────────────────────────────
-        bind_when(n, Key::Tab, "editor.action.inlineSuggest.commit", "inlineSuggestionVisible"),
-        bind_when(a, Key::BracketRight, "editor.action.inlineSuggest.showNext", "inlineSuggestionVisible"),
-        bind_when(a, Key::BracketLeft, "editor.action.inlineSuggest.showPrevious", "inlineSuggestionVisible"),
+        bind_when(
+            n,
+            Key::Tab,
+            "editor.action.inlineSuggest.commit",
+            "inlineSuggestionVisible",
+        ),
+        bind_when(
+            a,
+            Key::BracketRight,
+            "editor.action.inlineSuggest.showNext",
+            "inlineSuggestionVisible",
+        ),
+        bind_when(
+            a,
+            Key::BracketLeft,
+            "editor.action.inlineSuggest.showPrevious",
+            "inlineSuggestionVisible",
+        ),
         // ── Linked editing ────────────────────────────────────────────────
         chord(p, Key::K, p, Key::F2, "editor.action.linkedEditing"),
         // ── Cursor undo ───────────────────────────────────────────────────
         bind_when(p, Key::U, "cursorUndo", etf),
         bind_when(ps, Key::U, "cursorRedo", etf),
         // ── Snippet navigation ────────────────────────────────────────────
-        bind_when(n, Key::Tab, "jumpToNextSnippetPlaceholder", "inSnippetMode && hasNextTabstop"),
-        bind_when(s, Key::Tab, "jumpToPrevSnippetPlaceholder", "inSnippetMode && hasPrevTabstop"),
+        bind_when(
+            n,
+            Key::Tab,
+            "jumpToNextSnippetPlaceholder",
+            "inSnippetMode && hasNextTabstop",
+        ),
+        bind_when(
+            s,
+            Key::Tab,
+            "jumpToPrevSnippetPlaceholder",
+            "inSnippetMode && hasPrevTabstop",
+        ),
         bind_when(n, Key::Escape, "leaveSnippet", "inSnippetMode"),
         // ── Toggle minimap ────────────────────────────────────────────────
         bind(ps, Key::M, "editor.action.toggleMinimap"),
         // ── Toggle activity bar ───────────────────────────────────────────
-        chord(p, Key::K, p, Key::A, "workbench.action.toggleActivityBarVisibility"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::A,
+            "workbench.action.toggleActivityBarVisibility",
+        ),
         // ── Toggle status bar ─────────────────────────────────────────────
-        chord(p, Key::K, p, Key::S, "workbench.action.toggleStatusbarVisibility"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::S,
+            "workbench.action.toggleStatusbarVisibility",
+        ),
         // ── New window ────────────────────────────────────────────────────
         bind(ps, Key::N, "workbench.action.newWindow"),
         // ── Duplicate workspace in new window ─────────────────────────────
-        bind(psa, Key::N, "workbench.action.duplicateWorkspaceInNewWindow"),
+        bind(
+            psa,
+            Key::N,
+            "workbench.action.duplicateWorkspaceInNewWindow",
+        ),
         // ── Revert file ───────────────────────────────────────────────────
         chord(p, Key::K, n, Key::U, "workbench.action.files.revert"),
         // ── Workbench layout ──────────────────────────────────────────────
-        chord(p, Key::K, p, Key::Backslash, "workbench.action.toggleEditorGroupLayout"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::Backslash,
+            "workbench.action.toggleEditorGroupLayout",
+        ),
         // ── Focus side bar ────────────────────────────────────────────────
         bind(p, Key::Digit0, "workbench.action.focusSideBar"),
         // ── Show all editors ──────────────────────────────────────────────
@@ -574,15 +783,37 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         // ── Close folder in workspace ─────────────────────────────────────
         chord(p, Key::K, n, Key::F, "workbench.action.closeFolder"),
         // ── Toggle centered layout ────────────────────────────────────────
-        chord(p, Key::K, p, Key::Z, "workbench.action.toggleCenteredLayout"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::Z,
+            "workbench.action.toggleCenteredLayout",
+        ),
         // ── Copy relative path ────────────────────────────────────────────
-        chord(p, Key::K, ps, Key::P, "workbench.action.files.copyRelativePathOfActiveFile"),
+        chord(
+            p,
+            Key::K,
+            ps,
+            Key::P,
+            "workbench.action.files.copyRelativePathOfActiveFile",
+        ),
         // ── Trigger suggest ───────────────────────────────────────────────
         bind_when(p, Key::I, "editor.action.triggerSuggest", etf),
         // ── Select all occurrences of find match ──────────────────────────
-        bind_when(ps, Key::L, "editor.action.selectAllOccurrencesOfFindMatch", etf_sel),
+        bind_when(
+            ps,
+            Key::L,
+            "editor.action.selectAllOccurrencesOfFindMatch",
+            etf_sel,
+        ),
         // ── Focus breadcrumbs ─────────────────────────────────────────────
-        bind_when(ps, Key::Period, "breadcrumbs.focusAndSelect", "breadcrumbsVisible"),
+        bind_when(
+            ps,
+            Key::Period,
+            "breadcrumbs.focusAndSelect",
+            "breadcrumbsVisible",
+        ),
         // ── Editor layout ─────────────────────────────────────────────────
         bind(pa, Key::Digit1, "workbench.action.editorLayoutSingle"),
         bind(pa, Key::Digit2, "workbench.action.editorLayoutTwoColumns"),
@@ -590,21 +821,56 @@ pub fn default_keybindings() -> Vec<KeyBinding> {
         // ── Toggle panel position ─────────────────────────────────────────
         chord(p, Key::K, p, Key::P, "workbench.action.togglePanelPosition"),
         // ── Open next/prev recently used editor in group ──────────────────
-        bind_when(p, Key::Tab, "workbench.action.openNextRecentlyUsedEditorInGroup", etf),
+        bind_when(
+            p,
+            Key::Tab,
+            "workbench.action.openNextRecentlyUsedEditorInGroup",
+            etf,
+        ),
         // ── Go to last edit location ──────────────────────────────────────
-        chord(p, Key::K, p, Key::Q, "workbench.action.openLastEditorInGroup"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::Q,
+            "workbench.action.openLastEditorInGroup",
+        ),
         // ── Toggle render control characters ──────────────────────────────
-        chord(p, Key::K, p, Key::Digit9, "editor.action.toggleRenderControlCharacter"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::Digit9,
+            "editor.action.toggleRenderControlCharacter",
+        ),
         // ── Transpose ─────────────────────────────────────────────────────
         bind_when(p, Key::T, "editor.action.transposeLetters", etf_ro),
         // ── Toggle auto save ──────────────────────────────────────────────
         bind(pa, Key::S, "workbench.action.toggleAutoSave"),
         // ── Open workspace settings ───────────────────────────────────────
-        chord(p, Key::K, p, Key::Comma, "workbench.action.openWorkspaceSettings"),
+        chord(
+            p,
+            Key::K,
+            p,
+            Key::Comma,
+            "workbench.action.openWorkspaceSettings",
+        ),
         // ── Open user settings JSON ───────────────────────────────────────
-        chord(p, Key::K, ps, Key::Comma, "workbench.action.openSettingsJson"),
+        chord(
+            p,
+            Key::K,
+            ps,
+            Key::Comma,
+            "workbench.action.openSettingsJson",
+        ),
         // ── Open default keybindings ──────────────────────────────────────
-        chord(p, Key::K, ps, Key::K, "workbench.action.openDefaultKeybindingsFile"),
+        chord(
+            p,
+            Key::K,
+            ps,
+            Key::K,
+            "workbench.action.openDefaultKeybindingsFile",
+        ),
     ]
 }
 

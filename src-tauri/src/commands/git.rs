@@ -71,8 +71,7 @@ pub async fn git_status(path: String) -> Result<GitStatus, String> {
     validate_path(&path)?;
     let repo = Path::new(&path);
 
-    let branch = sidex_git::current_branch(repo)
-        .unwrap_or_else(|_| "HEAD".to_string());
+    let branch = sidex_git::current_branch(repo).unwrap_or_else(|_| "HEAD".to_string());
 
     let entries = sidex_git::status::get_status(repo).map_err(git_err)?;
 
@@ -94,12 +93,8 @@ pub async fn git_diff(path: String, file: Option<String>, staged: bool) -> Resul
     let repo = Path::new(&path);
 
     match (file, staged) {
-        (Some(f), true) => {
-            sidex_git::diff::get_diff_staged(repo, Path::new(&f)).map_err(git_err)
-        }
-        (Some(f), false) => {
-            sidex_git::diff::get_diff(repo, Path::new(&f)).map_err(git_err)
-        }
+        (Some(f), true) => sidex_git::diff::get_diff_staged(repo, Path::new(&f)).map_err(git_err),
+        (Some(f), false) => sidex_git::diff::get_diff(repo, Path::new(&f)).map_err(git_err),
         (None, staged) => {
             let mut args = vec!["diff"];
             if staged {

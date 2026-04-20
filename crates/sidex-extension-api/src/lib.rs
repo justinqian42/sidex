@@ -39,6 +39,13 @@ pub mod window;
 pub mod workspace_api;
 
 pub use api::ExtensionApiHandler;
+pub use commands_api::{CommandHandler, CommandRegistry};
+pub use debug_api::{
+    BreakpointLocation, DapEvent, DapRequest, DapRequestKind, DapResponse, DebugAdapterDescriptor,
+    DebugApi, DebugConfiguration, DebugSessionId,
+};
+pub use env_api::{EnvApi, LogLevel, UiKind};
+pub use languages_api::{LanguageConfiguration, LanguagesApi, ProviderKind, SemanticTokensLegend};
 pub use message_handler::{
     activate_extension, handle_ext_host_message, notify_active_editor_changed,
     notify_configuration_changed, notify_document_changed, notify_document_closed,
@@ -47,13 +54,6 @@ pub use message_handler::{
     request_completions, request_definition, request_document_formatting, request_extension_host,
     request_hover, request_references, set_decorations, start_extension_host,
 };
-pub use commands_api::{CommandHandler, CommandRegistry};
-pub use debug_api::{
-    BreakpointLocation, DapEvent, DapRequest, DapRequestKind, DapResponse, DebugAdapterDescriptor,
-    DebugApi, DebugConfiguration, DebugSessionId,
-};
-pub use env_api::{EnvApi, LogLevel, UiKind};
-pub use languages_api::{LanguageConfiguration, LanguagesApi, ProviderKind, SemanticTokensLegend};
 pub use scm_api::{ScmApi, SourceControlId, SourceControlResourceState};
 pub use tasks_api::{Task, TaskDefinition, TaskExecutionId, TasksApi};
 pub use test_api::{TestApi, TestControllerId, TestItem, TestMessage, TestRunId, TestRunResult};

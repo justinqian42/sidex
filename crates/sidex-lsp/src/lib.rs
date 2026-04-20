@@ -68,8 +68,8 @@ pub use capabilities::ServerCaps;
 pub use client::LspClient;
 pub use code_action_engine::{request_code_actions, CodeActionInfo, CodeActionKind};
 pub use completion_engine::{
-    filter_and_sort, filter_completion_items, fuzzy_score, sort_completion_items,
-    CompletionEngine, CompletionList, CompletionSession, CompletionTrigger,
+    filter_and_sort, filter_completion_items, fuzzy_score, sort_completion_items, CompletionEngine,
+    CompletionList, CompletionSession, CompletionTrigger,
 };
 pub use conversion::{lsp_to_position, lsp_to_range, position_to_lsp, range_to_lsp};
 pub use diagnostics::{
@@ -80,7 +80,9 @@ pub use document_color::{
     provide_color_presentations, provide_document_colors, ColorInformation, ColorPresentation,
     DocumentColorService, LspColor,
 };
-pub use document_link::{provide_document_links, resolve_document_link, DocumentLink, DocumentLinkService};
+pub use document_link::{
+    provide_document_links, resolve_document_link, DocumentLink, DocumentLinkService,
+};
 pub use document_sync::{
     compute_incremental_changes, ChangeEvent, ChangeThrottle, TextDocumentSyncKind,
 };
@@ -102,9 +104,7 @@ pub use rename_engine::{
     execute_rename, prepare_rename, DocumentChange, PrepareRenameResult, RenameInfo, RenameResult,
     RenameService, WorkspaceEdit,
 };
-pub use selection_range::{
-    provide_selection_ranges, SelectionRange, SelectionRangeService,
-};
+pub use selection_range::{provide_selection_ranges, SelectionRange, SelectionRangeService};
 pub use signature_help::{
     request_signature, request_signature_state, ParameterInfo, ParameterLabel, SignatureHelpState,
     SignatureInfo,

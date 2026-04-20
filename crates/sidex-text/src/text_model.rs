@@ -246,7 +246,11 @@ mod tests {
 
     #[test]
     fn detect_indentation_spaces() {
-        let model = TextModel::new("function() {\n    a;\n    b;\n        c;\n}", "js", "file:///test.js");
+        let model = TextModel::new(
+            "function() {\n    a;\n    b;\n        c;\n}",
+            "js",
+            "file:///test.js",
+        );
         let (insert_spaces, tab_size) = model.detect_indentation();
         assert!(insert_spaces);
         assert_eq!(tab_size, 4);

@@ -255,10 +255,7 @@ pub fn stash_drop_index(repo_root: &Path, index: usize) -> GitResult<String> {
 
 /// Parse `git stash list` output into structured [`StashEntry`] values.
 pub fn stash_list_parsed(repo_root: &Path) -> GitResult<Vec<StashEntry>> {
-    let output = run_git(
-        repo_root,
-        &["stash", "list", "--format=%gd%n%gs%n%aI"],
-    )?;
+    let output = run_git(repo_root, &["stash", "list", "--format=%gd%n%gs%n%aI"])?;
     parse_stash_list(&output)
 }
 
@@ -314,11 +311,7 @@ pub fn rename_branch(repo_root: &Path, old_name: &str, new_name: &str) -> GitRes
 }
 
 /// Delete a local branch, optionally force.
-pub fn delete_branch_force(
-    repo_root: &Path,
-    name: &str,
-    force: bool,
-) -> GitResult<()> {
+pub fn delete_branch_force(repo_root: &Path, name: &str, force: bool) -> GitResult<()> {
     let flag = if force { "-D" } else { "-d" };
     run_git(repo_root, &["branch", flag, name])?;
     Ok(())
@@ -461,7 +454,9 @@ pub fn pull_detailed(
     if output.status.success() {
         let fast_forward = stdout.contains("Fast-forward");
         let merge_commit = if !fast_forward {
-            run_git(repo_root, &["rev-parse", "HEAD"]).ok().map(|h| h.trim().to_string())
+            run_git(repo_root, &["rev-parse", "HEAD"])
+                .ok()
+                .map(|h| h.trim().to_string())
         } else {
             None
         };
@@ -513,13 +508,10 @@ pub fn list_submodules(repo_root: &Path) -> GitResult<Vec<SubmoduleInfo>> {
             let path = parts[1].to_string();
             let name = path.rsplit('/').next().unwrap_or(&path).to_string();
 
-            let url = run_git(
-                repo_root,
-                &["config", &format!("submodule.{name}.url")],
-            )
-            .unwrap_or_default()
-            .trim()
-            .to_string();
+            let url = run_git(repo_root, &["config", &format!("submodule.{name}.url")])
+                .unwrap_or_default()
+                .trim()
+                .to_string();
 
             submodules.push(SubmoduleInfo {
                 name,
@@ -661,7 +653,9 @@ pub fn get_remotes(repo_root: &Path) -> GitResult<Vec<RemoteInfo>> {
             let name = parts[0].to_string();
             let url = parts[1].to_string();
             let kind = parts[2].trim_matches(|c| c == '(' || c == ')');
-            let entry = map.entry(name).or_insert_with(|| (String::new(), String::new()));
+            let entry = map
+                .entry(name)
+                .or_insert_with(|| (String::new(), String::new()));
             match kind {
                 "fetch" => entry.0 = url,
                 "push" => entry.1 = url,
@@ -798,10 +792,17 @@ pub fn list_tags(repo_root: &Path) -> GitResult<Vec<TagInfo>> {
             TagInfo {
                 hash: parts.first().copied().unwrap_or("").to_string(),
                 name: parts.get(1).copied().unwrap_or("").to_string(),
-                message: parts.get(2).map(|s| {
-                    let s = s.to_string();
-                    if s.is_empty() { None } else { Some(s) }
-                }).unwrap_or(None),
+                message: parts
+                    .get(2)
+                    .map(|s| {
+                        let s = s.to_string();
+                        if s.is_empty() {
+                            None
+                        } else {
+                            Some(s)
+                        }
+                    })
+                    .unwrap_or(None),
             }
         })
         .collect();

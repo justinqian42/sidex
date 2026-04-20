@@ -1,8 +1,8 @@
 use serde::Serialize;
 use sidex_text::diff::{compute_line_diff, LineDiff};
 use sidex_text::encoding::detect_encoding;
-use sidex_text::{detect_line_ending, line_ending_label, normalize_line_endings, LineEnding};
 use sidex_text::Buffer;
+use sidex_text::{detect_line_ending, line_ending_label, normalize_line_endings, LineEnding};
 use std::io::Read;
 
 #[derive(Debug, Serialize)]

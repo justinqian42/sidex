@@ -112,29 +112,72 @@ pub enum TokenScope {
 impl TokenScope {
     /// All variants in definition order.
     pub const ALL: &[Self] = &[
-        Self::Comment, Self::CommentDoc, Self::CommentBlock,
-        Self::String, Self::StringEscape, Self::StringRegex, Self::StringTemplate,
-        Self::Number, Self::NumberFloat, Self::NumberHex,
+        Self::Comment,
+        Self::CommentDoc,
+        Self::CommentBlock,
+        Self::String,
+        Self::StringEscape,
+        Self::StringRegex,
+        Self::StringTemplate,
+        Self::Number,
+        Self::NumberFloat,
+        Self::NumberHex,
         Self::Boolean,
-        Self::Keyword, Self::KeywordControl, Self::KeywordOperator, Self::KeywordImport,
-        Self::KeywordReturn, Self::KeywordType, Self::KeywordModifier,
-        Self::Operator, Self::OperatorAssignment, Self::OperatorComparison,
-        Self::OperatorArithmetic, Self::OperatorLogical,
-        Self::Punctuation, Self::PunctuationBracket, Self::PunctuationDelimiter,
+        Self::Keyword,
+        Self::KeywordControl,
+        Self::KeywordOperator,
+        Self::KeywordImport,
+        Self::KeywordReturn,
+        Self::KeywordType,
+        Self::KeywordModifier,
+        Self::Operator,
+        Self::OperatorAssignment,
+        Self::OperatorComparison,
+        Self::OperatorArithmetic,
+        Self::OperatorLogical,
+        Self::Punctuation,
+        Self::PunctuationBracket,
+        Self::PunctuationDelimiter,
         Self::PunctuationAccessor,
-        Self::Function, Self::FunctionCall, Self::FunctionDefinition, Self::FunctionBuiltin,
-        Self::Method, Self::MethodCall, Self::MethodDefinition,
-        Self::Variable, Self::VariableParameter, Self::VariableProperty,
-        Self::VariableBuiltin, Self::VariableReadonly,
-        Self::Class, Self::ClassInherited, Self::Interface, Self::Struct,
-        Self::Enum, Self::EnumMember,
-        Self::Type, Self::TypePrimitive, Self::TypeBuiltin, Self::TypeParameter,
-        Self::Namespace, Self::Module,
-        Self::Property, Self::Attribute, Self::Decorator, Self::Label,
-        Self::Tag, Self::TagName, Self::TagAttribute,
-        Self::Macro, Self::MacroCall,
-        Self::Lifetime, Self::SelfKeyword, Self::Constant,
-        Self::Invalid, Self::Deprecated, Self::Embedded,
+        Self::Function,
+        Self::FunctionCall,
+        Self::FunctionDefinition,
+        Self::FunctionBuiltin,
+        Self::Method,
+        Self::MethodCall,
+        Self::MethodDefinition,
+        Self::Variable,
+        Self::VariableParameter,
+        Self::VariableProperty,
+        Self::VariableBuiltin,
+        Self::VariableReadonly,
+        Self::Class,
+        Self::ClassInherited,
+        Self::Interface,
+        Self::Struct,
+        Self::Enum,
+        Self::EnumMember,
+        Self::Type,
+        Self::TypePrimitive,
+        Self::TypeBuiltin,
+        Self::TypeParameter,
+        Self::Namespace,
+        Self::Module,
+        Self::Property,
+        Self::Attribute,
+        Self::Decorator,
+        Self::Label,
+        Self::Tag,
+        Self::TagName,
+        Self::TagAttribute,
+        Self::Macro,
+        Self::MacroCall,
+        Self::Lifetime,
+        Self::SelfKeyword,
+        Self::Constant,
+        Self::Invalid,
+        Self::Deprecated,
+        Self::Embedded,
     ];
 
     /// Returns the canonical TextMate-style scope string.
@@ -285,65 +328,183 @@ impl TokenScope {
     }
 
     fn from_prefix(s: &str) -> Option<Self> {
-        if s.starts_with("comment.doc") { return Some(Self::CommentDoc); }
-        if s.starts_with("comment.block") { return Some(Self::CommentBlock); }
-        if s.starts_with("comment") { return Some(Self::Comment); }
-        if s.starts_with("string.escape") { return Some(Self::StringEscape); }
-        if s.starts_with("string.regex") || s.starts_with("string.regexp") { return Some(Self::StringRegex); }
-        if s.starts_with("string.template") || s.starts_with("string.interpolated") { return Some(Self::StringTemplate); }
-        if s.starts_with("string") { return Some(Self::String); }
-        if s.starts_with("number.float") || s.starts_with("constant.numeric.float") { return Some(Self::NumberFloat); }
-        if s.starts_with("number.hex") || s.starts_with("constant.numeric.hex") { return Some(Self::NumberHex); }
-        if s.starts_with("number") || s.starts_with("constant.numeric") { return Some(Self::Number); }
-        if s.starts_with("keyword.control.import") || s.starts_with("keyword.import") { return Some(Self::KeywordImport); }
-        if s.starts_with("keyword.control.return") || s.starts_with("keyword.return") { return Some(Self::KeywordReturn); }
-        if s.starts_with("keyword.control") { return Some(Self::KeywordControl); }
-        if s.starts_with("keyword.operator") { return Some(Self::KeywordOperator); }
-        if s.starts_with("keyword.type") { return Some(Self::KeywordType); }
-        if s.starts_with("keyword.modifier") || s.starts_with("storage.modifier") { return Some(Self::KeywordModifier); }
-        if s.starts_with("keyword") { return Some(Self::Keyword); }
-        if s.starts_with("operator") { return Some(Self::Operator); }
-        if s.starts_with("punctuation.bracket") { return Some(Self::PunctuationBracket); }
-        if s.starts_with("punctuation.delimiter") || s.starts_with("punctuation.separator") { return Some(Self::PunctuationDelimiter); }
-        if s.starts_with("punctuation.accessor") { return Some(Self::PunctuationAccessor); }
-        if s.starts_with("punctuation") { return Some(Self::Punctuation); }
-        if s.starts_with("function.builtin") { return Some(Self::FunctionBuiltin); }
-        if s.starts_with("function.definition") { return Some(Self::FunctionDefinition); }
-        if s.starts_with("function.call") { return Some(Self::FunctionCall); }
-        if s.starts_with("function") { return Some(Self::Function); }
-        if s.starts_with("method.definition") { return Some(Self::MethodDefinition); }
-        if s.starts_with("method.call") { return Some(Self::MethodCall); }
-        if s.starts_with("method") { return Some(Self::Method); }
-        if s.starts_with("variable.parameter") || s.starts_with("parameter") { return Some(Self::VariableParameter); }
-        if s.starts_with("variable.property") || s.starts_with("variable.member") { return Some(Self::VariableProperty); }
-        if s.starts_with("variable.builtin") { return Some(Self::VariableBuiltin); }
-        if s.starts_with("variable.readonly") { return Some(Self::VariableReadonly); }
-        if s.starts_with("variable") { return Some(Self::Variable); }
-        if s.starts_with("type.parameter") || s.starts_with("typeParameter") { return Some(Self::TypeParameter); }
-        if s.starts_with("type.primitive") { return Some(Self::TypePrimitive); }
-        if s.starts_with("type.builtin") { return Some(Self::TypeBuiltin); }
-        if s.starts_with("type") { return Some(Self::Type); }
-        if s.starts_with("class") { return Some(Self::Class); }
-        if s.starts_with("interface") { return Some(Self::Interface); }
-        if s.starts_with("struct") { return Some(Self::Struct); }
-        if s.starts_with("enum.member") || s.starts_with("enumMember") { return Some(Self::EnumMember); }
-        if s.starts_with("enum") { return Some(Self::Enum); }
-        if s.starts_with("namespace") { return Some(Self::Namespace); }
-        if s.starts_with("module") { return Some(Self::Module); }
-        if s.starts_with("property") || s.starts_with("field") { return Some(Self::Property); }
-        if s.starts_with("attribute") { return Some(Self::Attribute); }
-        if s.starts_with("decorator") { return Some(Self::Decorator); }
-        if s.starts_with("tag.name") { return Some(Self::TagName); }
-        if s.starts_with("tag.attribute") { return Some(Self::TagAttribute); }
-        if s.starts_with("tag") { return Some(Self::Tag); }
-        if s.starts_with("macro.call") { return Some(Self::MacroCall); }
-        if s.starts_with("macro") { return Some(Self::Macro); }
-        if s.starts_with("lifetime") { return Some(Self::Lifetime); }
-        if s.starts_with("constant") || s.starts_with("boolean") { return Some(Self::Constant); }
-        if s.starts_with("label") { return Some(Self::Label); }
-        if s.starts_with("invalid") { return Some(Self::Invalid); }
-        if s.starts_with("deprecated") { return Some(Self::Deprecated); }
-        if s.starts_with("embedded") { return Some(Self::Embedded); }
+        if s.starts_with("comment.doc") {
+            return Some(Self::CommentDoc);
+        }
+        if s.starts_with("comment.block") {
+            return Some(Self::CommentBlock);
+        }
+        if s.starts_with("comment") {
+            return Some(Self::Comment);
+        }
+        if s.starts_with("string.escape") {
+            return Some(Self::StringEscape);
+        }
+        if s.starts_with("string.regex") || s.starts_with("string.regexp") {
+            return Some(Self::StringRegex);
+        }
+        if s.starts_with("string.template") || s.starts_with("string.interpolated") {
+            return Some(Self::StringTemplate);
+        }
+        if s.starts_with("string") {
+            return Some(Self::String);
+        }
+        if s.starts_with("number.float") || s.starts_with("constant.numeric.float") {
+            return Some(Self::NumberFloat);
+        }
+        if s.starts_with("number.hex") || s.starts_with("constant.numeric.hex") {
+            return Some(Self::NumberHex);
+        }
+        if s.starts_with("number") || s.starts_with("constant.numeric") {
+            return Some(Self::Number);
+        }
+        if s.starts_with("keyword.control.import") || s.starts_with("keyword.import") {
+            return Some(Self::KeywordImport);
+        }
+        if s.starts_with("keyword.control.return") || s.starts_with("keyword.return") {
+            return Some(Self::KeywordReturn);
+        }
+        if s.starts_with("keyword.control") {
+            return Some(Self::KeywordControl);
+        }
+        if s.starts_with("keyword.operator") {
+            return Some(Self::KeywordOperator);
+        }
+        if s.starts_with("keyword.type") {
+            return Some(Self::KeywordType);
+        }
+        if s.starts_with("keyword.modifier") || s.starts_with("storage.modifier") {
+            return Some(Self::KeywordModifier);
+        }
+        if s.starts_with("keyword") {
+            return Some(Self::Keyword);
+        }
+        if s.starts_with("operator") {
+            return Some(Self::Operator);
+        }
+        if s.starts_with("punctuation.bracket") {
+            return Some(Self::PunctuationBracket);
+        }
+        if s.starts_with("punctuation.delimiter") || s.starts_with("punctuation.separator") {
+            return Some(Self::PunctuationDelimiter);
+        }
+        if s.starts_with("punctuation.accessor") {
+            return Some(Self::PunctuationAccessor);
+        }
+        if s.starts_with("punctuation") {
+            return Some(Self::Punctuation);
+        }
+        if s.starts_with("function.builtin") {
+            return Some(Self::FunctionBuiltin);
+        }
+        if s.starts_with("function.definition") {
+            return Some(Self::FunctionDefinition);
+        }
+        if s.starts_with("function.call") {
+            return Some(Self::FunctionCall);
+        }
+        if s.starts_with("function") {
+            return Some(Self::Function);
+        }
+        if s.starts_with("method.definition") {
+            return Some(Self::MethodDefinition);
+        }
+        if s.starts_with("method.call") {
+            return Some(Self::MethodCall);
+        }
+        if s.starts_with("method") {
+            return Some(Self::Method);
+        }
+        if s.starts_with("variable.parameter") || s.starts_with("parameter") {
+            return Some(Self::VariableParameter);
+        }
+        if s.starts_with("variable.property") || s.starts_with("variable.member") {
+            return Some(Self::VariableProperty);
+        }
+        if s.starts_with("variable.builtin") {
+            return Some(Self::VariableBuiltin);
+        }
+        if s.starts_with("variable.readonly") {
+            return Some(Self::VariableReadonly);
+        }
+        if s.starts_with("variable") {
+            return Some(Self::Variable);
+        }
+        if s.starts_with("type.parameter") || s.starts_with("typeParameter") {
+            return Some(Self::TypeParameter);
+        }
+        if s.starts_with("type.primitive") {
+            return Some(Self::TypePrimitive);
+        }
+        if s.starts_with("type.builtin") {
+            return Some(Self::TypeBuiltin);
+        }
+        if s.starts_with("type") {
+            return Some(Self::Type);
+        }
+        if s.starts_with("class") {
+            return Some(Self::Class);
+        }
+        if s.starts_with("interface") {
+            return Some(Self::Interface);
+        }
+        if s.starts_with("struct") {
+            return Some(Self::Struct);
+        }
+        if s.starts_with("enum.member") || s.starts_with("enumMember") {
+            return Some(Self::EnumMember);
+        }
+        if s.starts_with("enum") {
+            return Some(Self::Enum);
+        }
+        if s.starts_with("namespace") {
+            return Some(Self::Namespace);
+        }
+        if s.starts_with("module") {
+            return Some(Self::Module);
+        }
+        if s.starts_with("property") || s.starts_with("field") {
+            return Some(Self::Property);
+        }
+        if s.starts_with("attribute") {
+            return Some(Self::Attribute);
+        }
+        if s.starts_with("decorator") {
+            return Some(Self::Decorator);
+        }
+        if s.starts_with("tag.name") {
+            return Some(Self::TagName);
+        }
+        if s.starts_with("tag.attribute") {
+            return Some(Self::TagAttribute);
+        }
+        if s.starts_with("tag") {
+            return Some(Self::Tag);
+        }
+        if s.starts_with("macro.call") {
+            return Some(Self::MacroCall);
+        }
+        if s.starts_with("macro") {
+            return Some(Self::Macro);
+        }
+        if s.starts_with("lifetime") {
+            return Some(Self::Lifetime);
+        }
+        if s.starts_with("constant") || s.starts_with("boolean") {
+            return Some(Self::Constant);
+        }
+        if s.starts_with("label") {
+            return Some(Self::Label);
+        }
+        if s.starts_with("invalid") {
+            return Some(Self::Invalid);
+        }
+        if s.starts_with("deprecated") {
+            return Some(Self::Deprecated);
+        }
+        if s.starts_with("embedded") {
+            return Some(Self::Embedded);
+        }
         None
     }
 
@@ -354,16 +515,27 @@ impl TokenScope {
             Self::CommentDoc | Self::CommentBlock => Some(Self::Comment),
             Self::StringEscape | Self::StringRegex | Self::StringTemplate => Some(Self::String),
             Self::NumberFloat | Self::NumberHex => Some(Self::Number),
-            Self::KeywordControl | Self::KeywordOperator | Self::KeywordImport
-            | Self::KeywordReturn | Self::KeywordType | Self::KeywordModifier => Some(Self::Keyword),
-            Self::OperatorAssignment | Self::OperatorComparison
-            | Self::OperatorArithmetic | Self::OperatorLogical => Some(Self::Operator),
-            Self::PunctuationBracket | Self::PunctuationDelimiter
-            | Self::PunctuationAccessor => Some(Self::Punctuation),
-            Self::FunctionCall | Self::FunctionDefinition | Self::FunctionBuiltin => Some(Self::Function),
+            Self::KeywordControl
+            | Self::KeywordOperator
+            | Self::KeywordImport
+            | Self::KeywordReturn
+            | Self::KeywordType
+            | Self::KeywordModifier => Some(Self::Keyword),
+            Self::OperatorAssignment
+            | Self::OperatorComparison
+            | Self::OperatorArithmetic
+            | Self::OperatorLogical => Some(Self::Operator),
+            Self::PunctuationBracket | Self::PunctuationDelimiter | Self::PunctuationAccessor => {
+                Some(Self::Punctuation)
+            }
+            Self::FunctionCall | Self::FunctionDefinition | Self::FunctionBuiltin => {
+                Some(Self::Function)
+            }
             Self::MethodCall | Self::MethodDefinition => Some(Self::Method),
-            Self::VariableParameter | Self::VariableProperty
-            | Self::VariableBuiltin | Self::VariableReadonly => Some(Self::Variable),
+            Self::VariableParameter
+            | Self::VariableProperty
+            | Self::VariableBuiltin
+            | Self::VariableReadonly => Some(Self::Variable),
             Self::ClassInherited => Some(Self::Class),
             Self::EnumMember => Some(Self::Enum),
             Self::TypePrimitive | Self::TypeBuiltin | Self::TypeParameter => Some(Self::Type),
@@ -402,8 +574,16 @@ impl TokenModifiers {
     /// Standard modifier names in bit order, matching the LSP semantic token
     /// modifier legend.
     pub const NAMES: &[&str] = &[
-        "declaration", "definition", "readonly", "static", "deprecated",
-        "abstract", "async", "modification", "documentation", "defaultLibrary",
+        "declaration",
+        "definition",
+        "readonly",
+        "static",
+        "deprecated",
+        "abstract",
+        "async",
+        "modification",
+        "documentation",
+        "defaultLibrary",
     ];
 
     /// Build a `TokenModifiers` from a list of modifier name strings.
@@ -553,9 +733,8 @@ impl SyntaxHighlighter {
                                         highlighter.tokens.len() as u32,
                                     ));
                                 }
-                                highlighter.tokens[line as usize].push(HighlightToken::new(
-                                    col, len, scope,
-                                ));
+                                highlighter.tokens[line as usize]
+                                    .push(HighlightToken::new(col, len, scope));
                             }
                             line += 1;
                             col = 0;
@@ -907,7 +1086,10 @@ mod tests {
     #[test]
     fn token_scope_parent() {
         assert_eq!(TokenScope::CommentDoc.parent(), Some(TokenScope::Comment));
-        assert_eq!(TokenScope::FunctionCall.parent(), Some(TokenScope::Function));
+        assert_eq!(
+            TokenScope::FunctionCall.parent(),
+            Some(TokenScope::Function)
+        );
         assert_eq!(TokenScope::Comment.parent(), None);
     }
 

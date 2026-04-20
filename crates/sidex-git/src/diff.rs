@@ -156,11 +156,7 @@ pub fn compute_hunks(original: &str, modified: &str) -> Vec<DiffHunk> {
 }
 
 /// Format hunks as a standard unified diff string.
-pub fn format_unified_diff(
-    hunks: &[DiffHunk],
-    original_name: &str,
-    modified_name: &str,
-) -> String {
+pub fn format_unified_diff(hunks: &[DiffHunk], original_name: &str, modified_name: &str) -> String {
     let mut out = String::new();
     out.push_str(&format!("--- {original_name}\n"));
     out.push_str(&format!("+++ {modified_name}\n"));
@@ -266,11 +262,7 @@ enum RawOp {
     Add(usize),
 }
 
-fn build_raw_diff<'a>(
-    old: &[&'a str],
-    new: &[&'a str],
-    lcs: &[Vec<u32>],
-) -> Vec<RawOp> {
+fn build_raw_diff<'a>(old: &[&'a str], new: &[&'a str], lcs: &[Vec<u32>]) -> Vec<RawOp> {
     let mut ops = Vec::new();
     let mut i = old.len();
     let mut j = new.len();
@@ -301,12 +293,7 @@ fn build_raw_diff<'a>(
 }
 
 #[allow(clippy::cast_possible_truncation)]
-fn group_into_hunks(
-    ops: &[RawOp],
-    old: &[&str],
-    new: &[&str],
-    context: usize,
-) -> Vec<DiffHunk> {
+fn group_into_hunks(ops: &[RawOp], old: &[&str], new: &[&str], context: usize) -> Vec<DiffHunk> {
     let mut hunks: Vec<DiffHunk> = Vec::new();
 
     let change_ranges = find_change_ranges(ops, context);

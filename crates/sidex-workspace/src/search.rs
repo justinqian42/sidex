@@ -921,8 +921,9 @@ impl SearchEngine {
                 } else {
                     if matches_found.load(Ordering::Relaxed) >= max_results {
                         done.store(true, Ordering::Relaxed);
-                        let excess =
-                            matches_found.load(Ordering::Relaxed).saturating_sub(max_results);
+                        let excess = matches_found
+                            .load(Ordering::Relaxed)
+                            .saturating_sub(max_results);
                         if excess > 0 && local.len() > excess {
                             local.truncate(local.len() - excess);
                         }
@@ -962,9 +963,7 @@ impl SearchEngine {
             let content = match fs::read_to_string(&file_rep.path) {
                 Ok(c) => c,
                 Err(e) => {
-                    report
-                        .errors
-                        .push((file_rep.path.clone(), e.to_string()));
+                    report.errors.push((file_rep.path.clone(), e.to_string()));
                     continue;
                 }
             };
@@ -989,9 +988,7 @@ impl SearchEngine {
                     report.replacements_made += edit_count;
                 }
                 Err(e) => {
-                    report
-                        .errors
-                        .push((file_rep.path.clone(), e.to_string()));
+                    report.errors.push((file_rep.path.clone(), e.to_string()));
                 }
             }
         }

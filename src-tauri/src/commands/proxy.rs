@@ -2,25 +2,36 @@ use base64::Engine as _;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::net::IpAddr;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 const MAX_RESPONSE_BYTES: usize = 50 * 1024 * 1024; // 50 MB
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
 const ALLOWED_HOSTS: &[&str] = &[
+    // SideX marketplace Worker (custom domain + workers.dev fallback)
+    "marketplace.siden.ai",
+    "sidex-marketplace-proxy.kendall-dd9.workers.dev",
+    // Open VSX
     "open-vsx.org",
     "openvsx.eclipsecontent.org",
+    // Microsoft Marketplace
     "marketplace.visualstudio.com",
     "az764295.vo.msecnd.net",
     "vscode-unpkg.net",
     "gallery.vsassets.io",
     "vsmarketplacebadges.dev",
     "vscode.blob.core.windows.net",
+    // VS Code asset CDN (VSIX packages + icons)
+    "vsassets.io",
+    "openvsxorg.blob.core.windows.net",
+    // GitHub (readme images, extension assets)
     "github.com",
     "raw.githubusercontent.com",
     "objects.githubusercontent.com",
-    "update.code.visualstudio.com",
     "codeload.github.com",
+    // Updates
+    "update.code.visualstudio.com",
 ];
 
 fn validate_url(url: &str) -> Result<reqwest::Url, String> {
@@ -82,13 +93,29 @@ fn is_host_allowed(url: &reqwest::Url) -> bool {
     false
 }
 
-fn build_client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .timeout(REQUEST_TIMEOUT)
-        .connect_timeout(Duration::from_secs(10))
-        .redirect(reqwest::redirect::Policy::limited(5))
-        .build()
-        .map_err(|e| format!("failed to build HTTP client: {e}"))
+/// Process-wide shared HTTP client. One client = one connection pool
+/// shared across all proxy requests. This eliminates the per-request
+/// TCP + TLS handshake overhead that was causing 8-10 s cold requests.
+static PROXY_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+fn get_client() -> &'static reqwest::Client {
+    PROXY_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .timeout(REQUEST_TIMEOUT)
+            .connect_timeout(Duration::from_secs(5))
+            .tcp_keepalive(Some(Duration::from_secs(60)))
+            .pool_idle_timeout(Some(Duration::from_secs(90)))
+            .pool_max_idle_per_host(8)
+            .http2_keep_alive_interval(Some(Duration::from_secs(30)))
+            .http2_keep_alive_timeout(Duration::from_secs(10))
+            .http2_keep_alive_while_idle(true)
+            .http2_adaptive_window(true)
+            .gzip(true)
+            .brotli(true)
+            .redirect(reqwest::redirect::Policy::limited(5))
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new())
+    })
 }
 
 #[allow(clippy::cast_possible_truncation)]
@@ -112,7 +139,7 @@ async fn read_body_limited(response: reqwest::Response) -> Result<Vec<u8>, Strin
 #[tauri::command]
 pub async fn fetch_url(url: String) -> Result<Vec<u8>, String> {
     let parsed = validate_url(&url)?;
-    let client = build_client()?;
+    let client = get_client();
     let response = client
         .get(parsed)
         .send()
@@ -125,7 +152,7 @@ pub async fn fetch_url(url: String) -> Result<Vec<u8>, String> {
 #[tauri::command]
 pub async fn fetch_url_text(url: String) -> Result<String, String> {
     let parsed = validate_url(&url)?;
-    let client = build_client()?;
+    let client = get_client();
     let response = client
         .get(parsed)
         .send()
@@ -151,7 +178,7 @@ pub async fn proxy_request(
         ));
     }
 
-    let client = build_client()?;
+    let client = get_client();
 
     let mut req = match method.to_uppercase().as_str() {
         "POST" => client.post(parsed),
@@ -201,7 +228,7 @@ pub async fn proxy_request_full(
         ));
     }
 
-    let client = build_client()?;
+    let client = get_client();
 
     let mut req = match method.to_uppercase().as_str() {
         "POST" => client.post(parsed),

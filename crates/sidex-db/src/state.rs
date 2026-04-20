@@ -89,16 +89,10 @@ impl<'db> StateStore<'db> {
 // ── Workspace state ─────────────────────────────────────────────────────────
 
 /// Get a workspace-scoped state value (open files, scroll positions, etc.).
-pub fn get_workspace_state(
-    db: &Database,
-    workspace: &str,
-    key: &str,
-) -> Result<Option<Value>> {
+pub fn get_workspace_state(db: &Database, workspace: &str, key: &str) -> Result<Option<Value>> {
     let mut stmt = db
         .conn()
-        .prepare_cached(
-            "SELECT value FROM workspace_state WHERE workspace = ?1 AND key = ?2",
-        )
+        .prepare_cached("SELECT value FROM workspace_state WHERE workspace = ?1 AND key = ?2")
         .context("prepare get_workspace_state")?;
 
     let result = stmt
@@ -116,12 +110,7 @@ pub fn get_workspace_state(
 }
 
 /// Set a workspace-scoped state value.
-pub fn set_workspace_state(
-    db: &Database,
-    workspace: &str,
-    key: &str,
-    value: &Value,
-) -> Result<()> {
+pub fn set_workspace_state(db: &Database, workspace: &str, key: &str, value: &Value) -> Result<()> {
     let json = serde_json::to_string(value).context("serialize workspace state")?;
     db.conn()
         .execute(
@@ -445,8 +434,14 @@ mod tests {
     fn extension_state_global_scope() {
         let db = test_db();
         let scope = StateScope::Global;
-        set_extension_state(&db, "ext.rust-analyzer", "config", &json!({"key": "val"}), &scope)
-            .unwrap();
+        set_extension_state(
+            &db,
+            "ext.rust-analyzer",
+            "config",
+            &json!({"key": "val"}),
+            &scope,
+        )
+        .unwrap();
         let loaded = get_extension_state(&db, "ext.rust-analyzer", "config", &scope)
             .unwrap()
             .unwrap();
@@ -463,8 +458,8 @@ mod tests {
             .unwrap();
         assert_eq!(loaded, json!([1, 2, 3]));
 
-        let global = get_extension_state(&db, "ext.prettier", "cache", &StateScope::Global)
-            .unwrap();
+        let global =
+            get_extension_state(&db, "ext.prettier", "cache", &StateScope::Global).unwrap();
         assert!(global.is_none());
     }
 

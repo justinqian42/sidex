@@ -224,7 +224,11 @@ pub async fn list_containers() -> Result<Vec<ContainerInfo>> {
             .map(|p| PortMapping {
                 container_port: p.private_port,
                 host_port: p.public_port.unwrap_or(0),
-                protocol: p.typ.as_ref().map(|t| format!("{t:?}")).unwrap_or_else(|| "tcp".to_string()),
+                protocol: p
+                    .typ
+                    .as_ref()
+                    .map(|t| format!("{t:?}"))
+                    .unwrap_or_else(|| "tcp".to_string()),
             })
             .collect();
         result.push(ContainerInfo {

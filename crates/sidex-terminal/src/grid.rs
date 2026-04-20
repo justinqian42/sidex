@@ -151,21 +151,37 @@ impl Default for Cell {
 
 impl Cell {
     #[inline]
-    pub fn bold(&self) -> bool { self.attrs.contains(CellAttributes::BOLD) }
+    pub fn bold(&self) -> bool {
+        self.attrs.contains(CellAttributes::BOLD)
+    }
     #[inline]
-    pub fn dim(&self) -> bool { self.attrs.contains(CellAttributes::DIM) }
+    pub fn dim(&self) -> bool {
+        self.attrs.contains(CellAttributes::DIM)
+    }
     #[inline]
-    pub fn italic(&self) -> bool { self.attrs.contains(CellAttributes::ITALIC) }
+    pub fn italic(&self) -> bool {
+        self.attrs.contains(CellAttributes::ITALIC)
+    }
     #[inline]
-    pub fn underline(&self) -> bool { self.attrs.contains(CellAttributes::UNDERLINE) }
+    pub fn underline(&self) -> bool {
+        self.attrs.contains(CellAttributes::UNDERLINE)
+    }
     #[inline]
-    pub fn blink(&self) -> bool { self.attrs.contains(CellAttributes::BLINK) }
+    pub fn blink(&self) -> bool {
+        self.attrs.contains(CellAttributes::BLINK)
+    }
     #[inline]
-    pub fn inverse(&self) -> bool { self.attrs.contains(CellAttributes::INVERSE) }
+    pub fn inverse(&self) -> bool {
+        self.attrs.contains(CellAttributes::INVERSE)
+    }
     #[inline]
-    pub fn hidden(&self) -> bool { self.attrs.contains(CellAttributes::HIDDEN) }
+    pub fn hidden(&self) -> bool {
+        self.attrs.contains(CellAttributes::HIDDEN)
+    }
     #[inline]
-    pub fn strikethrough(&self) -> bool { self.attrs.contains(CellAttributes::STRIKETHROUGH) }
+    pub fn strikethrough(&self) -> bool {
+        self.attrs.contains(CellAttributes::STRIKETHROUGH)
+    }
 
     /// Returns the underline style: 0=none, 1=single, 2=double, 3=curly, 4=dotted, 5=dashed.
     pub fn underline_style(&self) -> u8 {
@@ -205,7 +221,11 @@ pub struct TerminalCursor {
 
 impl Default for TerminalCursor {
     fn default() -> Self {
-        Self { row: 0, col: 0, visible: true }
+        Self {
+            row: 0,
+            col: 0,
+            visible: true,
+        }
     }
 }
 
@@ -306,8 +326,14 @@ pub struct TerminalSelection {
 impl TerminalSelection {
     pub fn new_simple(start_row: u16, start_col: u16, end_row: u16, end_col: u16) -> Self {
         Self {
-            start: SelectionPoint { line: start_row as i32, col: start_col },
-            end: SelectionPoint { line: end_row as i32, col: end_col },
+            start: SelectionPoint {
+                line: start_row as i32,
+                col: start_col,
+            },
+            end: SelectionPoint {
+                line: end_row as i32,
+                col: end_col,
+            },
             mode: SelectionMode::Normal,
         }
     }
@@ -370,10 +396,16 @@ impl TerminalGrid {
         grid
     }
 
-    pub fn rows(&self) -> u16 { self.rows }
-    pub fn cols(&self) -> u16 { self.cols }
+    pub fn rows(&self) -> u16 {
+        self.rows
+    }
+    pub fn cols(&self) -> u16 {
+        self.cols
+    }
 
-    pub fn cells(&self) -> &[Vec<Cell>] { &self.cells }
+    pub fn cells(&self) -> &[Vec<Cell>] {
+        &self.cells
+    }
 
     pub fn cell(&self, row: u16, col: u16) -> &Cell {
         &self.cells[row as usize][col as usize]
@@ -659,10 +691,16 @@ impl TerminalGrid {
         let (start, end) = sel.ordered();
         let mut result = String::new();
         for line in start.line..=end.line {
-            if line < 0 { continue; }
+            if line < 0 {
+                continue;
+            }
             let row = line as u16;
             let col_start = if line == start.line { start.col } else { 0 };
-            let col_end = if line == end.line { end.col } else { self.cols.saturating_sub(1) };
+            let col_end = if line == end.line {
+                end.col
+            } else {
+                self.cols.saturating_sub(1)
+            };
             if (row as usize) < self.cells.len() {
                 let cells = &self.cells[row as usize];
                 match sel.mode {
@@ -687,7 +725,11 @@ impl TerminalGrid {
             }
         }
         let trimmed = result.trim_end().to_string();
-        if trimmed.is_empty() { None } else { Some(trimmed) }
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
     }
 
     pub fn find_in_terminal(&self, query: &str) -> Vec<(u16, u16)> {
@@ -715,23 +757,33 @@ impl TerminalGrid {
     pub fn insert_lines(&mut self, count: u16) {
         let top = self.cursor.row as usize;
         let bottom = self.scroll_bottom as usize;
-        if top > bottom || bottom >= self.cells.len() { return; }
+        if top > bottom || bottom >= self.cells.len() {
+            return;
+        }
         for _ in 0..count {
-            if bottom < self.cells.len() { self.cells.remove(bottom); }
-            self.cells.insert(top, vec![Cell::default(); self.cols as usize]);
+            if bottom < self.cells.len() {
+                self.cells.remove(bottom);
+            }
+            self.cells
+                .insert(top, vec![Cell::default(); self.cols as usize]);
         }
     }
 
     pub fn delete_lines(&mut self, count: u16) {
         let top = self.cursor.row as usize;
         let bottom = self.scroll_bottom as usize;
-        if top > bottom || bottom >= self.cells.len() { return; }
+        if top > bottom || bottom >= self.cells.len() {
+            return;
+        }
         for _ in 0..count {
-            if top < self.cells.len() { self.cells.remove(top); }
+            if top < self.cells.len() {
+                self.cells.remove(top);
+            }
             if self.cells.len() <= bottom {
                 self.cells.push(vec![Cell::default(); self.cols as usize]);
             } else {
-                self.cells.insert(bottom, vec![Cell::default(); self.cols as usize]);
+                self.cells
+                    .insert(bottom, vec![Cell::default(); self.cols as usize]);
             }
         }
     }
@@ -740,7 +792,9 @@ impl TerminalGrid {
         let row = self.cursor.row as usize;
         let col = self.cursor.col as usize;
         let cols = self.cols as usize;
-        if row >= self.cells.len() { return; }
+        if row >= self.cells.len() {
+            return;
+        }
         for _ in 0..count {
             if col < cols {
                 self.cells[row].insert(col, Cell::default());
@@ -753,7 +807,9 @@ impl TerminalGrid {
         let row = self.cursor.row as usize;
         let col = self.cursor.col as usize;
         let cols = self.cols as usize;
-        if row >= self.cells.len() { return; }
+        if row >= self.cells.len() {
+            return;
+        }
         for _ in 0..count {
             if col < self.cells[row].len() {
                 self.cells[row].remove(col);
@@ -766,7 +822,9 @@ impl TerminalGrid {
     pub fn erase_chars(&mut self, count: u16) {
         let row = self.cursor.row as usize;
         let col = self.cursor.col as usize;
-        if row >= self.cells.len() { return; }
+        if row >= self.cells.len() {
+            return;
+        }
         for i in 0..count as usize {
             if col + i < self.cells[row].len() {
                 self.cells[row][col + i] = Cell::default();
@@ -782,10 +840,14 @@ impl TerminalGrid {
     // --- Alternate screen ---
 
     pub fn enter_alternate_screen(&mut self) {
-        if self.alternate_screen.is_some() { return; }
+        if self.alternate_screen.is_some() {
+            return;
+        }
         let saved = std::mem::replace(
             &mut self.cells,
-            (0..self.rows).map(|_| vec![Cell::default(); self.cols as usize]).collect(),
+            (0..self.rows)
+                .map(|_| vec![Cell::default(); self.cols as usize])
+                .collect(),
         );
         self.alternate_screen = Some(saved);
     }

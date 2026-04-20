@@ -296,11 +296,7 @@ pub struct TunnelConnection {
 
 impl TunnelConnection {
     /// Start a named tunnel server that accepts connections from remote clients.
-    pub async fn start_tunnel(
-        name: &str,
-        relay_url: &str,
-        auth_token: &str,
-    ) -> Result<Self> {
+    pub async fn start_tunnel(name: &str, relay_url: &str, auth_token: &str) -> Result<Self> {
         let server = TunnelServer::start(relay_url, auth_token).await?;
         let url = format!("{relay_url}/tunnel/{name}");
         Ok(Self {

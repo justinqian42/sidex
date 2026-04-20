@@ -369,24 +369,15 @@ mod tests {
     use super::*;
 
     fn sample_tree_items() -> Vec<TreeItem> {
-        vec![
-            TreeItem {
-                id: "root".into(),
-                label: "Root".into(),
-                collapsible_state: CollapsibleState::Collapsed,
-                children: Some(vec![TreeItem {
-                    id: "child1".into(),
-                    label: "Child 1".into(),
-                    collapsible_state: CollapsibleState::None,
-                    children: None,
-                    description: None,
-                    tooltip: None,
-                    icon: None,
-                    command: None,
-                    context_value: None,
-                    resource_uri: None,
-                    accessibility_information: None,
-                }]),
+        vec![TreeItem {
+            id: "root".into(),
+            label: "Root".into(),
+            collapsible_state: CollapsibleState::Collapsed,
+            children: Some(vec![TreeItem {
+                id: "child1".into(),
+                label: "Child 1".into(),
+                collapsible_state: CollapsibleState::None,
+                children: None,
                 description: None,
                 tooltip: None,
                 icon: None,
@@ -394,8 +385,15 @@ mod tests {
                 context_value: None,
                 resource_uri: None,
                 accessibility_information: None,
-            },
-        ]
+            }]),
+            description: None,
+            tooltip: None,
+            icon: None,
+            command: None,
+            context_value: None,
+            resource_uri: None,
+            accessibility_information: None,
+        }]
     }
 
     #[test]

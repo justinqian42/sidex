@@ -300,8 +300,14 @@ pub fn parse_keybinding_string(s: &str) -> Result<Vec<KeyCombo>, UnknownKey> {
 /// `keybindings.json`.
 pub fn keybinding_to_json(binding: &KeyBinding) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
-    obj.insert("key".into(), serde_json::Value::String(binding.key.to_string()));
-    obj.insert("command".into(), serde_json::Value::String(binding.command.clone()));
+    obj.insert(
+        "key".into(),
+        serde_json::Value::String(binding.key.to_string()),
+    );
+    obj.insert(
+        "command".into(),
+        serde_json::Value::String(binding.command.clone()),
+    );
     if let Some(when) = &binding.when {
         obj.insert("when".into(), serde_json::Value::String(when.clone()));
     }
@@ -332,10 +338,7 @@ mod tests {
 
     #[test]
     fn format_multi_modifier() {
-        let combos = vec![KeyCombo::new(
-            Key::P,
-            Modifiers::CTRL | Modifiers::SHIFT,
-        )];
+        let combos = vec![KeyCombo::new(Key::P, Modifiers::CTRL | Modifiers::SHIFT)];
         assert_eq!(format_keybinding(&combos), "Ctrl+Shift+P");
     }
 
@@ -393,7 +396,10 @@ mod tests {
         );
         let entries = get_all_keybinding_entries(&defaults, &user, &commands);
         assert!(!entries.is_empty());
-        let save = entries.iter().find(|e| e.command_id == "workbench.action.files.save").unwrap();
+        let save = entries
+            .iter()
+            .find(|e| e.command_id == "workbench.action.files.save")
+            .unwrap();
         assert_eq!(save.command_title, "File: Save");
         assert!(!save.is_user_modified);
     }

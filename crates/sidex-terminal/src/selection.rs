@@ -40,14 +40,24 @@ pub fn selected_text(grid: &TerminalGrid, selection: &TerminalSelection) -> Stri
     match selection.mode {
         SelectionMode::Normal | SelectionMode::Word => {
             for line in start.line..=end.line {
-                if line < 0 { continue; }
+                if line < 0 {
+                    continue;
+                }
                 let row = line as u16;
-                if row >= grid.rows() { break; }
+                if row >= grid.rows() {
+                    break;
+                }
                 let col_start = if line == start.line { start.col } else { 0 };
-                let col_end = if line == end.line { end.col } else { grid.cols().saturating_sub(1) };
+                let col_end = if line == end.line {
+                    end.col
+                } else {
+                    grid.cols().saturating_sub(1)
+                };
                 let mut line_text = String::new();
                 for col in col_start..=col_end {
-                    if col >= grid.cols() { break; }
+                    if col >= grid.cols() {
+                        break;
+                    }
                     let cell = grid.cell(row, col);
                     if cell.width != 0 {
                         line_text.push(cell.c);
@@ -63,9 +73,13 @@ pub fn selected_text(grid: &TerminalGrid, selection: &TerminalSelection) -> Stri
         }
         SelectionMode::Line => {
             for line in start.line..=end.line {
-                if line < 0 { continue; }
+                if line < 0 {
+                    continue;
+                }
                 let row = line as u16;
-                if row >= grid.rows() { break; }
+                if row >= grid.rows() {
+                    break;
+                }
                 for col in 0..grid.cols() {
                     let cell = grid.cell(row, col);
                     if cell.width != 0 {
@@ -84,11 +98,17 @@ pub fn selected_text(grid: &TerminalGrid, selection: &TerminalSelection) -> Stri
             let col_left = start.col.min(end.col);
             let col_right = start.col.max(end.col);
             for line in start.line..=end.line {
-                if line < 0 { continue; }
+                if line < 0 {
+                    continue;
+                }
                 let row = line as u16;
-                if row >= grid.rows() { break; }
+                if row >= grid.rows() {
+                    break;
+                }
                 for col in col_left..=col_right {
-                    if col >= grid.cols() { break; }
+                    if col >= grid.cols() {
+                        break;
+                    }
                     let cell = grid.cell(row, col);
                     if cell.width != 0 {
                         result.push(cell.c);
@@ -105,11 +125,7 @@ pub fn selected_text(grid: &TerminalGrid, selection: &TerminalSelection) -> Stri
 }
 
 /// Returns `true` if the given grid cell is within the selection.
-pub fn is_selected(
-    selection: &TerminalSelection,
-    row: u16,
-    col: u16,
-) -> bool {
+pub fn is_selected(selection: &TerminalSelection, row: u16, col: u16) -> bool {
     let (start, end) = selection.ordered();
     let line = row as i32;
 
@@ -149,9 +165,8 @@ pub fn expand_selection_word(
     let row = point.line as u16;
     let col = point.col.min(grid.cols().saturating_sub(1));
 
-    let is_word_char = |c: char| -> bool {
-        c.is_alphanumeric() || c == '_' || c == '-' || c == '.' || c == '/'
-    };
+    let is_word_char =
+        |c: char| -> bool { c.is_alphanumeric() || c == '_' || c == '-' || c == '.' || c == '/' };
 
     let cell_char = grid.cell(row, col).c;
     if !is_word_char(cell_char) && cell_char != ' ' {
@@ -163,7 +178,9 @@ pub fn expand_selection_word(
     let mut start_col = col;
     while start_col > 0 {
         let prev = grid.cell(row, start_col - 1).c;
-        if !is_word_char(prev) { break; }
+        if !is_word_char(prev) {
+            break;
+        }
         start_col -= 1;
     }
 
@@ -171,13 +188,21 @@ pub fn expand_selection_word(
     let mut end_col = col;
     while end_col + 1 < grid.cols() {
         let next = grid.cell(row, end_col + 1).c;
-        if !is_word_char(next) { break; }
+        if !is_word_char(next) {
+            break;
+        }
         end_col += 1;
     }
 
     (
-        SelectionPoint { line: point.line, col: start_col },
-        SelectionPoint { line: point.line, col: end_col },
+        SelectionPoint {
+            line: point.line,
+            col: start_col,
+        },
+        SelectionPoint {
+            line: point.line,
+            col: end_col,
+        },
     )
 }
 
@@ -190,7 +215,10 @@ pub fn expand_selection_line(
     let last_col = grid.cols().saturating_sub(1);
     (
         SelectionPoint { line, col: 0 },
-        SelectionPoint { line, col: last_col },
+        SelectionPoint {
+            line,
+            col: last_col,
+        },
     )
 }
 

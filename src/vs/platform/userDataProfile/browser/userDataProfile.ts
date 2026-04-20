@@ -1,6 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *  SideX - Profile registry backed by the Rust `sidex-profiles` crate.
  *--------------------------------------------------------------------------------------------*/
 
 import { BroadcastDataChannel } from '../../../base/browser/broadcast.js';
@@ -22,8 +21,28 @@ import {
 
 type BroadcastedProfileChanges = UriDto<Omit<DidChangeProfilesEvent, 'all'>>;
 
+const PROFILES_CHANGED_EVENT = 'sidex://profiles/changed';
+
+interface TauriBindings {
+	invoke<T = unknown>(cmd: string, args?: Record<string, unknown>): Promise<T>;
+	listen(event: string, handler: (e: { payload: unknown }) => void): Promise<() => void>;
+}
+
+async function loadTauri(): Promise<TauriBindings | undefined> {
+	try {
+		const [core, event] = await Promise.all([
+			import('@tauri-apps/api/core'),
+			import('@tauri-apps/api/event')
+		]);
+		return { invoke: core.invoke, listen: event.listen };
+	} catch {
+		return undefined;
+	}
+}
+
 export class BrowserUserDataProfilesService extends UserDataProfilesService implements IUserDataProfilesService {
 	private readonly changesBroadcastChannel: BroadcastDataChannel<BroadcastedProfileChanges>;
+	private readonly _tauri: Promise<TauriBindings | undefined>;
 
 	constructor(
 		@IEnvironmentService environmentService: IEnvironmentService,
@@ -32,6 +51,8 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 		@ILogService logService: ILogService
 	) {
 		super(environmentService, fileService, uriIdentityService, logService);
+
+		this._tauri = loadTauri();
 		this.changesBroadcastChannel = this._register(
 			new BroadcastDataChannel<BroadcastedProfileChanges>(`${UserDataProfilesService.PROFILES_KEY}.changes`)
 		);
@@ -60,6 +81,9 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 				}
 			})
 		);
+
+		void this.hydrateFromDisk();
+		void this.subscribeToDiskChanges();
 	}
 
 	private updateTransientProfiles(
@@ -82,6 +106,59 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 		}
 	}
 
+	private async hydrateFromDisk(): Promise<void> {
+		const tauri = await this._tauri;
+		if (!tauri) {
+			return;
+		}
+
+		try {
+			const [profiles, associations] = await Promise.all([
+				tauri.invoke<StoredUserDataProfile[]>('profiles_load'),
+				tauri.invoke<StoredProfileAssociations>('profiles_load_associations')
+			]);
+
+			const encodedProfiles = JSON.stringify(profiles ?? []);
+			const encodedAssociations = JSON.stringify(associations ?? {});
+
+			if (localStorage.getItem(UserDataProfilesService.PROFILES_KEY) !== encodedProfiles) {
+				localStorage.setItem(UserDataProfilesService.PROFILES_KEY, encodedProfiles);
+			}
+			if (localStorage.getItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY) !== encodedAssociations) {
+				localStorage.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY, encodedAssociations);
+			}
+		} catch (error) {
+			this.logService.warn('[sidex-profiles] hydrate failed', error);
+		}
+	}
+
+	private async subscribeToDiskChanges(): Promise<void> {
+		const tauri = await this._tauri;
+		if (!tauri) {
+			return;
+		}
+		try {
+			const unlisten = await tauri.listen(PROFILES_CHANGED_EVENT, () => {
+				void this.hydrateFromDisk();
+			});
+			this._register({ dispose: () => unlisten() });
+		} catch (error) {
+			this.logService.warn('[sidex-profiles] listen failed', error);
+		}
+	}
+
+	private async mirrorToDisk(command: string, payload: Record<string, unknown>): Promise<void> {
+		const tauri = await this._tauri;
+		if (!tauri) {
+			return;
+		}
+		try {
+			await tauri.invoke(command, payload);
+		} catch (error) {
+			this.logService.warn(`[sidex-profiles] ${command} failed`, error);
+		}
+	}
+
 	protected override getStoredProfiles(): StoredUserDataProfile[] {
 		try {
 			const value = localStorage.getItem(UserDataProfilesService.PROFILES_KEY);
@@ -89,7 +166,6 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 				return revive(JSON.parse(value));
 			}
 		} catch (error) {
-			/* ignore */
 			this.logService.error(error);
 		}
 		return [];
@@ -106,6 +182,7 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 
 	protected override saveStoredProfiles(storedProfiles: StoredUserDataProfile[]): void {
 		localStorage.setItem(UserDataProfilesService.PROFILES_KEY, JSON.stringify(storedProfiles));
+		void this.mirrorToDisk('profiles_save', { profiles: storedProfiles });
 	}
 
 	protected override getStoredProfileAssociations(): StoredProfileAssociations {
@@ -115,7 +192,6 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 				return JSON.parse(value);
 			}
 		} catch (error) {
-			/* ignore */
 			this.logService.error(error);
 		}
 		return {};
@@ -123,5 +199,6 @@ export class BrowserUserDataProfilesService extends UserDataProfilesService impl
 
 	protected override saveStoredProfileAssociations(storedProfileAssociations: StoredProfileAssociations): void {
 		localStorage.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY, JSON.stringify(storedProfileAssociations));
+		void this.mirrorToDisk('profiles_save_associations', { value: storedProfileAssociations });
 	}
 }

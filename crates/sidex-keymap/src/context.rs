@@ -150,9 +150,7 @@ impl WhenClause {
             Self::Or(parts) => parts.iter().any(|p| p.evaluate(ctx)),
             Self::Equals(k, v) => match ctx.keys.get(k) {
                 Some(ContextValue::String(s)) => s == v,
-                Some(ContextValue::Bool(b)) => {
-                    (v == "true" && *b) || (v == "false" && !*b)
-                }
+                Some(ContextValue::Bool(b)) => (v == "true" && *b) || (v == "false" && !*b),
                 Some(ContextValue::Number(n)) => v
                     .parse::<f64>()
                     .is_ok_and(|r| (*n - r).abs() < f64::EPSILON),
@@ -177,22 +175,14 @@ impl WhenClause {
                     None => false,
                 }
             }
-            Self::Greater(k, threshold) => ctx
-                .keys
-                .get_number(k)
-                .is_some_and(|n| n > *threshold),
-            Self::GreaterEquals(k, threshold) => ctx
-                .keys
-                .get_number(k)
-                .is_some_and(|n| n >= *threshold),
-            Self::Less(k, threshold) => ctx
-                .keys
-                .get_number(k)
-                .is_some_and(|n| n < *threshold),
-            Self::LessEquals(k, threshold) => ctx
-                .keys
-                .get_number(k)
-                .is_some_and(|n| n <= *threshold),
+            Self::Greater(k, threshold) => ctx.keys.get_number(k).is_some_and(|n| n > *threshold),
+            Self::GreaterEquals(k, threshold) => {
+                ctx.keys.get_number(k).is_some_and(|n| n >= *threshold)
+            }
+            Self::Less(k, threshold) => ctx.keys.get_number(k).is_some_and(|n| n < *threshold),
+            Self::LessEquals(k, threshold) => {
+                ctx.keys.get_number(k).is_some_and(|n| n <= *threshold)
+            }
         }
     }
 }
@@ -215,8 +205,7 @@ impl ContextKeyService {
     pub fn with_platform_defaults() -> Self {
         let mut svc = Self::new();
         svc.keys.set_bool(keys::IS_MAC, cfg!(target_os = "macos"));
-        svc.keys
-            .set_bool(keys::IS_LINUX, cfg!(target_os = "linux"));
+        svc.keys.set_bool(keys::IS_LINUX, cfg!(target_os = "linux"));
         svc.keys
             .set_bool(keys::IS_WINDOWS, cfg!(target_os = "windows"));
         svc.keys.set_bool(keys::IS_WEB, false);
@@ -310,8 +299,8 @@ enum Token {
     In,         // in
     Lt,         // <
     Gt,         // >
-    LtEq,      // <=
-    GtEq,      // >=
+    LtEq,       // <=
+    GtEq,       // >=
     LParen,
     RParen,
     True,
@@ -421,8 +410,18 @@ fn tokenize(input: &str) -> Vec<Token> {
                 while i < len
                     && !matches!(
                         chars[i],
-                        ' ' | '\t' | '(' | ')' | '!' | '=' | '&' | '|' | '\'' | '"' | '/'
-                            | '<' | '>'
+                        ' ' | '\t'
+                            | '('
+                            | ')'
+                            | '!'
+                            | '='
+                            | '&'
+                            | '|'
+                            | '\''
+                            | '"'
+                            | '/'
+                            | '<'
+                            | '>'
                     )
                 {
                     i += 1;
@@ -817,9 +816,9 @@ impl<'a> AstParser<'a> {
     fn consume_ast_number(&mut self) -> Result<f64, WhenClauseError> {
         match self.advance().cloned() {
             Some(Token::NumberLit(n)) => Ok(n),
-            Some(Token::Ident(s) | Token::StringLit(s)) => s
-                .parse()
-                .map_err(|_| WhenClauseError::InvalidNumber(s)),
+            Some(Token::Ident(s) | Token::StringLit(s)) => {
+                s.parse().map_err(|_| WhenClauseError::InvalidNumber(s))
+            }
             _ => Ok(0.0),
         }
     }
@@ -843,8 +842,7 @@ pub mod keys {
     pub const EDITOR_HAS_TYPE_DEFINITION_PROVIDER: &str = "editorHasTypeDefinitionProvider";
     pub const EDITOR_HAS_REFERENCE_PROVIDER: &str = "editorHasReferenceProvider";
     pub const EDITOR_HAS_RENAME_PROVIDER: &str = "editorHasRenameProvider";
-    pub const EDITOR_HAS_DOCUMENT_FORMATTING_PROVIDER: &str =
-        "editorHasDocumentFormattingProvider";
+    pub const EDITOR_HAS_DOCUMENT_FORMATTING_PROVIDER: &str = "editorHasDocumentFormattingProvider";
     pub const EDITOR_HAS_DOCUMENT_SELECTION_FORMATTING_PROVIDER: &str =
         "editorHasDocumentSelectionFormattingProvider";
     pub const EDITOR_HAS_SIGNATURE_HELP_PROVIDER: &str = "editorHasSignatureHelpProvider";

@@ -119,9 +119,7 @@ pub fn unpack_vsix(vsix_path: &Path) -> Result<VsixPackage> {
             _ => {}
         }
 
-        if rel_lower.ends_with(".png")
-            || rel_lower.ends_with(".jpg")
-            || rel_lower.ends_with(".svg")
+        if rel_lower.ends_with(".png") || rel_lower.ends_with(".jpg") || rel_lower.ends_with(".svg")
         {
             if rel_lower.contains("icon") {
                 icon = Some(buf.clone());
@@ -215,7 +213,10 @@ pub fn install_package(pkg: &VsixPackage, extensions_dir: &Path) -> Result<Insta
 
     if ext_dir.exists() {
         std::fs::remove_dir_all(&ext_dir).with_context(|| {
-            format!("failed to remove existing extension dir: {}", ext_dir.display())
+            format!(
+                "failed to remove existing extension dir: {}",
+                ext_dir.display()
+            )
         })?;
     }
     std::fs::create_dir_all(&ext_dir)?;
@@ -274,10 +275,7 @@ pub fn install_vsix(vsix_path: &Path, extensions_dir: &Path) -> Result<Installed
     let pkg = unpack_vsix(vsix_path)?;
     let validation = validate_vsix(&pkg);
     if !validation.valid {
-        anyhow::bail!(
-            "VSIX validation failed: {}",
-            validation.errors.join("; ")
-        );
+        anyhow::bail!("VSIX validation failed: {}", validation.errors.join("; "));
     }
     install_package(&pkg, extensions_dir)
 }

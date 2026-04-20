@@ -49,15 +49,13 @@ pub use parser::{to_input_edit, DocumentParser};
 pub use scope::{resolve_highlight_name, HighlightName};
 pub use scope_resolver::{resolve_scope, FontStyle, TextStyle, TokenColorRule};
 pub use semantic_tokens::{
-    apply_semantic_token_delta, decode_semantic_tokens, encode_semantic_tokens,
-    merge_highlights, merge_semantic_tokens, semantic_type_to_scope,
-    standard_semantic_token_legend, SemanticToken, SemanticTokenEdit, SemanticTokenLegend,
-    SemanticTokensDelta, SemanticTokensManager, StyledSpan, STANDARD_TOKEN_MODIFIERS,
-    STANDARD_TOKEN_TYPES,
+    apply_semantic_token_delta, decode_semantic_tokens, encode_semantic_tokens, merge_highlights,
+    merge_semantic_tokens, semantic_type_to_scope, standard_semantic_token_legend, SemanticToken,
+    SemanticTokenEdit, SemanticTokenLegend, SemanticTokensDelta, SemanticTokensManager, StyledSpan,
+    STANDARD_TOKEN_MODIFIERS, STANDARD_TOKEN_TYPES,
 };
 pub use textmate::{
-    RuleStack, TextMateGrammar, TextMateTokenizer, Token, TokenInfo, TokenizeResult,
-    TokenizerState,
+    RuleStack, TextMateGrammar, TextMateTokenizer, Token, TokenInfo, TokenizeResult, TokenizerState,
 };
 pub use tree_sitter_parser::{
     get_fold_ranges, get_indent_hints, get_injections, get_local_bindings, InjectionRange,

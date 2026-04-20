@@ -566,12 +566,7 @@ impl ExtensionHostManager {
     }
 
     /// Sends a JSON-RPC request to a specific host.
-    pub async fn send_request(
-        &self,
-        host_id: u32,
-        method: &str,
-        params: Value,
-    ) -> Result<Value> {
+    pub async fn send_request(&self, host_id: u32, method: &str, params: Value) -> Result<Value> {
         let host = self
             .hosts
             .iter()
@@ -581,12 +576,7 @@ impl ExtensionHostManager {
     }
 
     /// Sends a notification to a specific host.
-    pub async fn send_notification(
-        &self,
-        host_id: u32,
-        method: &str,
-        params: Value,
-    ) -> Result<()> {
+    pub async fn send_notification(&self, host_id: u32, method: &str, params: Value) -> Result<()> {
         let host = self
             .hosts
             .iter()
@@ -620,9 +610,7 @@ impl ExtensionHostManager {
             let host = self
                 .hosts
                 .iter()
-                .find(|h| {
-                    h.state.is_alive() && h.loaded_extensions.contains(&req.extension_id)
-                });
+                .find(|h| h.state.is_alive() && h.loaded_extensions.contains(&req.extension_id));
 
             if let Some(host) = host {
                 if let Err(e) = host
@@ -660,7 +648,11 @@ impl ExtensionHostManager {
     /// `MAX_CRASH_RESTARTS` times).
     pub async fn check_and_recover_crashed(&mut self) -> Result<()> {
         for host in &mut self.hosts {
-            if let HostState::Crashed { exit_code, ref stderr } = host.state {
+            if let HostState::Crashed {
+                exit_code,
+                ref stderr,
+            } = host.state
+            {
                 if let Some(ref handler) = self.crash_handler {
                     handler(host.id, exit_code, stderr);
                 }

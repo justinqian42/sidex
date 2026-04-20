@@ -28,7 +28,6 @@ tauri = { version = "2.10.3", features = [
 tauri-plugin-log = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell = "2"
-tauri-plugin-updater = "2"
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -108,6 +107,10 @@ sidex-terminal = { path = "../crates/sidex-terminal" }
 sidex-lsp = { path = "../crates/sidex-lsp" }
 sidex-keymap = { path = "../crates/sidex-keymap" }
 sidex-extension-api = { path = "../crates/sidex-extension-api" }
+sidex-update = { path = "../crates/sidex-update" }
+sidex-profiles = { path = "../crates/sidex-profiles" }
+sidex-auth = { path = "../crates/sidex-auth" }
+sidex-textmate = { path = "../crates/sidex-textmate" }
 
 tree-sitter = "0.24"
 tree-sitter-rust = "0.23"

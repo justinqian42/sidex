@@ -19,14 +19,9 @@ pub struct MigrationRule {
 #[derive(Clone, Debug)]
 pub enum MigrationAction {
     /// Rename a settings key.
-    Rename {
-        old_key: String,
-        new_key: String,
-    },
+    Rename { old_key: String, new_key: String },
     /// Remove a deprecated key.
-    Remove {
-        key: String,
-    },
+    Remove { key: String },
     /// Replace a key's value with a new default if it matches `old_value`.
     ReplaceValue {
         key: String,
@@ -34,10 +29,7 @@ pub enum MigrationAction {
         new_value: Value,
     },
     /// Copy the value from one key to another (keeping the source).
-    CopyKey {
-        source: String,
-        destination: String,
-    },
+    CopyKey { source: String, destination: String },
 }
 
 /// Apply a sequence of migration rules to a settings map, transforming it
@@ -101,7 +93,12 @@ fn apply_action(settings: &mut Map<String, Value>, action: &MigrationAction) {
 }
 
 /// Convenience: create a rename migration.
-pub fn rename_rule(from_version: u32, to_version: u32, old_key: &str, new_key: &str) -> MigrationRule {
+pub fn rename_rule(
+    from_version: u32,
+    to_version: u32,
+    old_key: &str,
+    new_key: &str,
+) -> MigrationRule {
     MigrationRule {
         from_version,
         to_version,
@@ -126,12 +123,7 @@ pub fn remove_rule(from_version: u32, to_version: u32, key: &str) -> MigrationRu
 /// Built-in migration rules (extend as needed between releases).
 pub fn builtin_migrations() -> Vec<MigrationRule> {
     vec![
-        rename_rule(
-            1,
-            2,
-            "editor.autoIndent",
-            "editor.autoIndent",
-        ),
+        rename_rule(1, 2, "editor.autoIndent", "editor.autoIndent"),
         rename_rule(
             1,
             2,
@@ -232,10 +224,7 @@ mod tests {
         let mut settings = Map::new();
         settings.insert("a".to_owned(), json!(1));
 
-        let rules = vec![
-            rename_rule(1, 2, "a", "b"),
-            rename_rule(3, 4, "b", "c"),
-        ];
+        let rules = vec![rename_rule(1, 2, "a", "b"), rename_rule(3, 4, "b", "c")];
         let v = migrate_settings(&mut settings, 1, 2, &rules);
 
         assert_eq!(v, 2);

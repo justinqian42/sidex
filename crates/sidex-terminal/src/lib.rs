@@ -40,6 +40,7 @@ pub mod shell_integration;
 pub use ansi::{AnsiAction, AnsiParser, OscCommand, ParserState};
 pub use emulator::{MouseEncoding, MouseTracking, TerminalEmulator};
 pub use exec::{exec, ExecResult};
+pub use find::{find_in_terminal, FindOptions, TerminalFind, TerminalMatch};
 pub use grid::{
     Cell, CellAttributes, Color, NamedColor, Scrollback, SelectionMode, SelectionPoint,
     TerminalCursor, TerminalGrid, TerminalSelection,
@@ -58,7 +59,7 @@ pub use pty::{
 };
 pub use renderer::{
     render_terminal, CursorShape, FontMetrics, GlyphInstance, LineInstance, RectInstance,
-    TerminalRenderer, TerminalRenderOutput, UnderlineStyle,
+    TerminalRenderOutput, TerminalRenderer, UnderlineStyle,
 };
 pub use selection::{
     expand_selection_line, expand_selection_word, extend_selection, is_selected, selected_text,
@@ -68,8 +69,7 @@ pub use shell::{
     available_shells, best_shell, check_shell_exists, detect_default_shell, setup_zsh_dotdir,
     ShellInfo,
 };
-pub use find::{find_in_terminal, FindOptions, TerminalFind, TerminalMatch};
 pub use shell_integration::{
-    detect_shell, generate_shell_init, parse_shell_integration_osc, CommandEntry,
-    ShellIntegration, ShellIntegrationEvent, ShellType,
+    detect_shell, generate_shell_init, parse_shell_integration_osc, CommandEntry, ShellIntegration,
+    ShellIntegrationEvent, ShellType,
 };

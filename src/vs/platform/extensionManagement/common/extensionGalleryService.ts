@@ -812,6 +812,15 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 	private readonly commonHeadersPromise: Promise<IHeaders>;
 	private readonly extensionsEnabledWithApiProposalVersion: string[];
 
+	/**
+	 * SideX: short-lived cache of marketplace endpoints that recently
+	 * returned HTTP 429. Prevents tight retry loops from hammering the
+	 * gallery — any request against a key in here short-circuits to a
+	 * `RateLimited` error until the TTL expires.
+	 */
+	private readonly _rateLimitBackoff = new Map<string, number>();
+	private static readonly RATE_LIMIT_BACKOFF_MS = 5 * 60 * 1000;
+
 	constructor(
 		storageService: IStorageService | undefined,
 		@IRequestService private readonly requestService: IRequestService,
@@ -955,6 +964,29 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 
 		if (!ids.length && !names.length) {
 			return [];
+		}
+
+		// Cap per-request page size so large extension sets (e.g. 200+
+		// installed extensions during update checks) don't produce a single
+		// 25+ MB query. The Worker caches each chunk independently so
+		// repeat calls are edge-cache hits.
+		const MAX_BATCH = 50;
+		if (extensionInfos.length > MAX_BATCH) {
+			const allExtensions: IGalleryExtension[] = [];
+			for (let i = 0; i < extensionInfos.length; i += MAX_BATCH) {
+				const chunkInfos = extensionInfos.slice(i, i + MAX_BATCH);
+				const chunkResults = await this.getExtensionsUsingQueryApi(
+					chunkInfos,
+					options,
+					extensionGalleryManifest,
+					token
+				);
+				allExtensions.push(...chunkResults);
+				if (token.isCancellationRequested) {
+					break;
+				}
+			}
+			return allExtensions;
 		}
 
 		let query = new Query().withPage(1, extensionInfos.length);
@@ -1732,7 +1764,6 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 					)
 				: null;
 			if (
-				!extension ||
 				/** Need all versions if the extension is a pre-release version but
 				 * 		- the query is to look for a release version or
 				 * 		- the extension has no release version
@@ -1972,6 +2003,22 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 				throw e;
 			} else {
 				const errorMessage = getErrorMessage(e);
+				// Tauri-specific: when a pending gallery request is
+				// cancelled (e.g. the user scrolls quickly and a new
+				// query supersedes this one), `reqwest` surfaces a
+				// generic "error decoding response body" or "operation
+				// was cancelled" instead of a real cancellation token.
+				// Treat both as cancellations so the extensions pane
+				// doesn't flash a scary error row.
+				const looksCancelled =
+					errorMessage.includes('error decoding response body') ||
+					errorMessage.includes('operation was canceled') ||
+					errorMessage.includes('operation was cancelled') ||
+					errorMessage.includes('request canceled');
+				if (looksCancelled) {
+					errorCode = ExtensionGalleryErrorCode.Cancelled;
+					throw new ExtensionGalleryError(errorMessage, errorCode);
+				}
 				errorCode = isOfflineError(e)
 					? ExtensionGalleryErrorCode.Offline
 					: errorMessage.startsWith('XHR timeout')
@@ -2101,6 +2148,18 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 		uri: URI,
 		token: CancellationToken
 	): Promise<IRawGalleryExtension | null> {
+		const backoffKey = uri.toString(true);
+		const backoffUntil = this._rateLimitBackoff.get(backoffKey);
+		if (backoffUntil !== undefined) {
+			if (Date.now() < backoffUntil) {
+				throw new ExtensionGalleryError(
+					`Marketplace rate-limited (retry after ${new Date(backoffUntil).toISOString()})`,
+					ExtensionGalleryErrorCode.Timeout
+				);
+			}
+			this._rateLimitBackoff.delete(backoffKey);
+		}
+
 		let context;
 		let errorCode: string | undefined;
 		const stopWatch = new StopWatch();
@@ -2128,6 +2187,19 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
 			if (context.res.statusCode === 404) {
 				errorCode = 'NotFound';
 				return null;
+			}
+
+			if (context.res.statusCode === 429) {
+				// Marketplace is rate-limiting us. Caching the 429 briefly
+				// prevents the caller from immediately falling back to the
+				// heavier query endpoint and re-triggering the throttle
+				// loop for every extension in the workspace.
+				errorCode = 'RateLimited';
+				this._rateLimitBackoff.set(backoffKey, Date.now() + AbstractExtensionGalleryService.RATE_LIMIT_BACKOFF_MS);
+				throw new ExtensionGalleryError(
+					'Marketplace rate-limited the version-check request (HTTP 429)',
+					ExtensionGalleryErrorCode.Timeout
+				);
 			}
 
 			if (context.res.statusCode && context.res.statusCode !== 200) {

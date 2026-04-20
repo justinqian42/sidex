@@ -1,14 +1,40 @@
 use crate::commands::extension_platform::{read_extension_manifest, ExtensionManifest};
 use serde::Serialize;
 use sidex_extensions::contributions::{parse_contributions, ContributionPoint};
-use sidex_extensions::installer::{install_from_vsix as crate_install_from_vsix, uninstall as crate_uninstall};
+use sidex_extensions::installer::{
+    install_from_vsix as crate_install_from_vsix, uninstall as crate_uninstall,
+};
 use sidex_extensions::manifest::sanitize_ext_id;
 use sidex_extensions::marketplace::MarketplaceClient;
 use sidex_extensions::paths::user_extensions_dir;
 use sidex_extensions::vsix::{install_package, unpack_vsix, validate_vsix};
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 use tauri::AppHandle;
+use tokio::sync::Mutex;
+
+/// Shared marketplace client — one HTTP connection pool per process,
+/// so searches don't re-do TCP+TLS handshakes on every keystroke.
+/// The client also owns the in-process query cache, which was
+/// previously wiped every call because a fresh client was constructed.
+pub struct MarketplaceClientState {
+    inner: Mutex<MarketplaceClient>,
+}
+
+impl Default for MarketplaceClientState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MarketplaceClientState {
+    pub fn new() -> Self {
+        Self {
+            inner: Mutex::new(MarketplaceClient::new()),
+        }
+    }
+}
 
 #[derive(Debug, Serialize)]
 pub struct InstalledExtension {
@@ -42,10 +68,9 @@ pub async fn install_extension(vsix_path: String) -> Result<InstalledExtension, 
     }
 
     let target_dir = user_extensions_dir();
-    let installed = crate_install_from_vsix(vsix, &target_dir)
-        .map_err(|e| format!("install: {e:#}"))?;
-    let safe_id = sanitize_ext_id(&installed.canonical_id())
-        .map_err(|e| format!("{e:#}"))?;
+    let installed =
+        crate_install_from_vsix(vsix, &target_dir).map_err(|e| format!("install: {e:#}"))?;
+    let safe_id = sanitize_ext_id(&installed.canonical_id()).map_err(|e| format!("{e:#}"))?;
     let ext_dir = target_dir.join(&safe_id);
 
     log::info!("installed extension {safe_id} to {}", ext_dir.display());
@@ -76,8 +101,8 @@ pub async fn install_extension_from_url(url: String) -> Result<InstalledExtensio
             ));
         }
         let target_dir = user_extensions_dir();
-        let installed = install_package(&pkg, &target_dir)
-            .map_err(|e| format!("install: {e:#}"))?;
+        let installed =
+            install_package(&pkg, &target_dir).map_err(|e| format!("install: {e:#}"))?;
         log::info!(
             "installed extension {} to {}",
             installed.manifest.canonical_id(),
@@ -148,10 +173,11 @@ pub struct MarketplaceResult {
 
 #[tauri::command]
 pub async fn extension_search_marketplace(
+    state: tauri::State<'_, Arc<MarketplaceClientState>>,
     query: String,
     page: u32,
 ) -> Result<Vec<MarketplaceResult>, String> {
-    let mut client = MarketplaceClient::new();
+    let mut client = state.inner.lock().await;
     let result = client
         .search(&query, page, 20)
         .await
@@ -274,8 +300,7 @@ pub async fn extension_get_contributions(
     extension_dir: String,
 ) -> Result<Vec<ContributionInfo>, String> {
     let pkg_path = Path::new(&extension_dir).join("package.json");
-    let raw = fs::read_to_string(&pkg_path)
-        .map_err(|e| format!("read package.json: {e}"))?;
+    let raw = fs::read_to_string(&pkg_path).map_err(|e| format!("read package.json: {e}"))?;
     let value: serde_json::Value =
         serde_json::from_str(&raw).map_err(|e| format!("parse package.json: {e}"))?;
 

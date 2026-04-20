@@ -259,10 +259,7 @@ impl MultiRootWorkspace {
     /// Make a path relative to the workspace file directory.
     #[must_use]
     pub fn make_relative(&self, absolute: &Path) -> Option<PathBuf> {
-        let base = self
-            .workspace_file
-            .as_ref()
-            .and_then(|p| p.parent())?;
+        let base = self.workspace_file.as_ref().and_then(|p| p.parent())?;
         pathdiff::diff_paths(absolute, base)
     }
 
@@ -316,7 +313,10 @@ impl MultiRootWorkspace {
 
     /// Add an extension recommendation.
     pub fn add_extension_recommendation(&mut self, extension_id: &str) {
-        let ext = self.config.extensions.get_or_insert_with(WorkspaceExtensions::default);
+        let ext = self
+            .config
+            .extensions
+            .get_or_insert_with(WorkspaceExtensions::default);
         if !ext.recommendations.contains(&extension_id.to_string()) {
             ext.recommendations.push(extension_id.to_string());
         }
@@ -324,8 +324,14 @@ impl MultiRootWorkspace {
 
     /// Mark an extension as unwanted.
     pub fn add_unwanted_recommendation(&mut self, extension_id: &str) {
-        let ext = self.config.extensions.get_or_insert_with(WorkspaceExtensions::default);
-        if !ext.unwanted_recommendations.contains(&extension_id.to_string()) {
+        let ext = self
+            .config
+            .extensions
+            .get_or_insert_with(WorkspaceExtensions::default);
+        if !ext
+            .unwanted_recommendations
+            .contains(&extension_id.to_string())
+        {
             ext.unwanted_recommendations.push(extension_id.to_string());
         }
     }
@@ -378,18 +384,15 @@ pub fn parse_workspace_file(path: &Path) -> Result<WorkspaceConfig, String> {
 
 /// Save a workspace config to a file.
 pub fn save_workspace_file(workspace: &WorkspaceConfig, path: &Path) -> Result<(), String> {
-    let json = serde_json::to_string_pretty(workspace)
-        .map_err(|e| format!("serialize workspace: {e}"))?;
+    let json =
+        serde_json::to_string_pretty(workspace).map_err(|e| format!("serialize workspace: {e}"))?;
     std::fs::write(path, json).map_err(|e| format!("write workspace file: {e}"))
 }
 
 /// Check if a path looks like a workspace file (by extension).
 #[must_use]
 pub fn is_workspace_file(path: &Path) -> bool {
-    let ext = path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("");
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
     matches!(ext, "code-workspace" | "sidex-workspace")
 }
 
@@ -564,7 +567,12 @@ mod tests {
 
         ws.add_unwanted_recommendation("ms-toolsai.jupyter");
         assert_eq!(
-            ws.config.extensions.as_ref().unwrap().unwanted_recommendations.len(),
+            ws.config
+                .extensions
+                .as_ref()
+                .unwrap()
+                .unwanted_recommendations
+                .len(),
             1
         );
     }

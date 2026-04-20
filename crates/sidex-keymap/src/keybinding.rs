@@ -567,8 +567,7 @@ impl ChordState {
     pub fn new(first_combo: KeyCombo) -> Self {
         Self {
             first_combo,
-            timeout: Instant::now()
-                + std::time::Duration::from_secs(Self::TIMEOUT_SECS),
+            timeout: Instant::now() + std::time::Duration::from_secs(Self::TIMEOUT_SECS),
         }
     }
 
@@ -709,8 +708,7 @@ mod tests {
             "editor.action.addCommentLine",
         )
         .with_when("editorTextFocus");
-        let resolved =
-            ResolvedKeybinding::from_binding(&binding, KeybindingSource::Default, true);
+        let resolved = ResolvedKeybinding::from_binding(&binding, KeybindingSource::Default, true);
         assert_eq!(resolved.keys.len(), 2);
         assert!(resolved.is_chord());
         assert!(resolved.is_default);
